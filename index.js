@@ -1,19 +1,20 @@
 #!/usr/bin/env node
 /* global document:true, window:true */
 
-var eol = require('eol')
-var fs = require('fs')
-var jsdom = require('jsdom').jsdom
-document = jsdom()
-window = document.defaultView
-var clipboardy = require('clipboardy')
-var git = require('git-rev')
-var prompt = require('cli-input')
+const eol = require('eol')
+const fs = require('node:fs')
+const JSDOM = require('jsdom').JSDOM
+const dom = new JSDOM('')
+globalThis.document = dom.window.document
+globalThis.window = dom.window
+const clipboardy = require('clipboardy')
+const git = require('git-rev')
+const prompt = require('cli-input')
 
-var Generator = require('./lib/generator')
-var pkg = require('./package.json')
+const Generator = require('./lib/generator')
+const pkg = require('./package.json')
 
-var help = 'Usage:\n' +
+const help = 'Usage:\n' +
     '\n' +
     '    spotgen input.txt [output.txt]\n' +
     '\n' +
@@ -52,10 +53,9 @@ var help = 'Usage:\n' +
  * @param {output} [output] - Output file.
  * @return {Promise} A promise.
  */
-function generate (str, output) {
-  output = output || 'STDOUT'
+function generate (str, output = 'STDOUT') {
   output = output.trim()
-  var generator = new Generator(str)
+  const generator = new Generator(str)
   return generator.generate().then(function (result) {
     if (!result) {
       return
@@ -69,7 +69,7 @@ function generate (str, output) {
             '********************************************************\n')
       }
       console.log(result + '\n')
-      var ps = prompt({format: 'Copy to clipboard? (Y/n) '})
+      const ps = prompt({format: 'Copy to clipboard? (Y/n) '})
       ps.prompt(null, function (err, val) {
         if (err) {
           return
@@ -94,9 +94,9 @@ function generate (str, output) {
  * Invoked when run from the command line.
  */
 function main () {
-  var input = process.argv[2]
-  var output = process.argv[3]
-  var str = input
+  const input = process.argv[2]
+  const output = process.argv[3]
+  let str = input
   if (typeof input === 'string' &&
       input.match(/(^-*h(elp)?$)|(^\/\?$)/gi)) {
     console.log(help)
@@ -109,9 +109,18 @@ function main () {
     })
     return
   }
-  if (!input) {
+  if (input) {
+    if (fs.existsSync(input)) {
+      str = fs.readFileSync(input, 'utf8').toString()
+      str = eol.lf(str)
+    } else {
+      // Input is generator string; help primitive shells with newlines.
+      str = str.replaceAll('\\n', '\n')
+    }
+    generate(str, output)
+  } else {
     console.log('Enter generator string (submit with Ctrl-D):')
-    var ps = prompt()
+    const ps = prompt()
     ps.multiline(function (err, lines, str) {
       ps.close()
       if (err) {
@@ -122,18 +131,6 @@ function main () {
       }
       generate(str)
     })
-  } else {
-    try {
-      // is input a file name?
-      str = fs.readFileSync(input, 'utf8').toString()
-      str = eol.lf(str)
-      generate(str, output)
-    } catch (err) {
-      // input is generator string; help out primitive shells
-      // (e.g., Windows') with newlines
-      str = str.replace(/\\n/gi, '\n')
-      generate(str, output)
-    }
   }
 }
 

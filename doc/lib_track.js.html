@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>JSDoc: Source: lib/track.js</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
@@ -216,8 +217,8 @@ Track.prototype.getInfo = function () {
 Track.prototype.getLastfm = function (user) {
   var self = this
   return lastfm.getInfo(this.artist, this.name, user).then(function (result) {
-    self.lastfmGlobal = parseInt(result.track.playcount)
-    self.lastfmPersonal = parseInt(result.track.userplaycount)
+    self.lastfmGlobal = Number.parseInt(result.track.playcount)
+    self.lastfmPersonal = Number.parseInt(result.track.userplaycount)
     self.lastfm = self.lastfmPersonal > -1 ? self.lastfmPersonal : self.lastfmGlobal
     return self
   })

@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>JSDoc: Source: lib/util.js</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
@@ -110,7 +111,7 @@ util.stripNoise = function (str) {
   str = util.normalize(str)
   str = str.replace(/].*/gi, ']')
     .replace(/\).*/gi, ')')
-    .replace(/^[0-9]+\. /gi, '')
+    .replace(/^\d+\. /gi, '')
     .replace(/\[[^\]]*]/gi, '')
     .replace(/\([^)]*\)/gi, '')
     .replace(/-+/gi, '-')

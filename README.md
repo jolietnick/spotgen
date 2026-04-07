@@ -1,5 +1,4 @@
-spotgen
-=======
+# spotgen
 
 [![nodei.co](https://nodei.co/npm/spotgen.png)](https://www.npmjs.com/package/spotgen)
 
@@ -11,8 +10,7 @@ A tool for generating [Spotify](http://www.spotify.com/) playlists programmatica
 
 Web demo: <https://epsil.github.io/spotgen/>
 
-Installation
-------------
+## Installation
 
 Install [Node](http://nodejs.org/) and fetch the package with [`npm`](https://www.npmjs.com/package/spotgen):
 
@@ -22,18 +20,17 @@ Note that on some systems, it might be necessary to prepend the `npm` command wi
 
 The generator can now be invoked from the command line as `spotgen` (see [usage](#command-line-version)).
 
-Usage
------
+## Usage
 
 ### Web demo
 
-Go to <https://epsil.github.io/spotgen/>, enter a [generator string](#commands) in the text field and press *Create Playlist*.
+Go to <https://epsil.github.io/spotgen/>, enter a [generator string](#commands) in the text field and press _Create Playlist_.
 
 ### Command-line version
 
     spotgen input.txt [output.txt]
 
-`input.txt` is a text file containing a [generator string](#commands), invoking any of the *commands* described below. `output.txt` will contain the generator's output, a list of [Spotify URIs](#spotify-uris) which can be [imported into Spotify](#importing-the-playlist). If an output file is not specified, then the Spotify URIs are written to standard output, with an option to copy them to the clipboard.
+`input.txt` is a text file containing a [generator string](#commands), invoking any of the _commands_ described below. `output.txt` will contain the generator's output, a list of [Spotify URIs](#spotify-uris) which can be [imported into Spotify](#importing-the-playlist). If an output file is not specified, then the Spotify URIs are written to standard output, with an option to copy them to the clipboard.
 
 Alternatively, one can pass a generator string as a single argument:
 
@@ -51,12 +48,11 @@ For more information, type `spotgen --help`.
 
 To **import** the playlist into Spotify:
 
-1.  **Copy the output of the generator:** Choose *Edit -> Copy* (<kbd>Ctrl</kbd> + <kbd>C</kbd>).
-2.  **Create a new playlist in Spotify:** Choose *File -> New Playlist* (<kbd>Ctrl</kbd> + <kbd>N</kbd>).
-3.  **Paste into the playlist:** Select the playlist and choose *Edit -> Paste* (<kbd>Ctrl</kbd> + <kbd>V</kbd>).
+1.  **Copy the output of the generator:** Choose _Edit -> Copy_ (<kbd>Ctrl</kbd> + <kbd>C</kbd>).
+2.  **Create a new playlist in Spotify:** Choose _File -> New Playlist_ (<kbd>Ctrl</kbd> + <kbd>N</kbd>).
+3.  **Paste into the playlist:** Select the playlist and choose _Edit -> Paste_ (<kbd>Ctrl</kbd> + <kbd>V</kbd>).
 
-Commands
---------
+## Commands
 
 The generator effectively defines a "mini-language" for creating Spotify playlists. One can create a playlist in many ways: on the basis of [track titles](#tracks), [album titles](#albums), [artist names](#artists), [similar artists](#similar-artists), [top tracks](#top-tracks) or [webpages](#web-scraping).
 
@@ -139,7 +135,7 @@ This will create a playlist consisting of the top tracks of Aphex Twin, followed
 
 To retrieve only the top 5 tracks, use `#top5`.
 
-To retrieve *all* tracks, use [`#artist`](#artists).
+To retrieve _all_ tracks, use [`#artist`](#artists).
 
 ### Similar artists
 
@@ -268,14 +264,13 @@ To group the tracks and then interleave them, use `#alternate by`:
 
 This will create a Last.fm-ordered playlist of artists similar to Beach House and Hooverphonic, with each track having a different artist from the previous track.
 
-Supported formats
------------------
+## Supported formats
 
 The generator can work with [Spotify links](#spotify-links), [Spotify URIs](#spotify-uris), [M3U playlists](#m3u-playlists) and [CSV files](#comma-separated-values). By default, the generator outputs a list of Spotify URIs.
 
 ### Import existing Spotify playlists
 
-The generator understands Spotify links and Spotify URIs. These are usually obtained by opening the item in Spotify and choosing *More* -> *Share* (click on the `...` symbol).
+The generator understands Spotify links and Spotify URIs. These are usually obtained by opening the item in Spotify and choosing _More_ -> _Share_ (click on the `...` symbol).
 
 #### Spotify links
 
@@ -347,8 +342,7 @@ To output to this format, add the line `#csv`:
 
 CSV files have the advantage of being editable with a spreadsheet editor such as Microsoft Excel or LibreOffice Calc. They are also future-proof, as they contain additional info to the Spotify URIs. (The URIs might, conceivably, change or become outdated. On the other hand, the title, artist and album of a track can be used to find that track on any music streaming service.)
 
-Web demo
---------
+## Web demo
 
 The generator is available as a single-page application running in the browser. It is hosted at <https://epsil.github.io/spotgen/>.
 
@@ -368,8 +362,7 @@ For more information about authentication, see the official [Spotify Web API doc
 
 The web demo is built with [Browserify](http://browserify.org/), which goes to show that the library is browserifiable.
 
-Library
--------
+## Library
 
 The generator is also available as a library that can be included in another project. To install it in the project's `node_modules/` folder:
 
@@ -378,13 +371,13 @@ The generator is also available as a library that can be included in another pro
 The following example demonstrates how to use the library:
 
 ```js
-var Generator = require('spotgen')
-var spotgen = new Generator('#top Beach House\n#top Deer Hunter')
+var Generator = require("spotgen");
+var spotgen = new Generator("#top Beach House\n#top Deer Hunter");
 spotgen.generate().then(function (result) {
   // do something with the Spotify URIs,
   // e.g., output them to the console
-  console.log(result)
-})
+  console.log(result);
+});
 ```
 
 The `generate()` method returns a [promise](https://www.promisejs.org/) that contains the Spotify URIs, represented as a newline-separated string. To access this value, use the `then()` callback as shown.
@@ -392,17 +385,16 @@ The `generate()` method returns a [promise](https://www.promisejs.org/) that con
 Note that if one is writing one's own application for Spotify, then one should [register the application](https://developer.spotify.com/web-api/authorization-guide/#introduction) and obtain a client ID and client secret key. These are passed to the `Generator` class like so:
 
 ```js
-var spotgen = new Generator('#top Beach House', clientId, clientKey)
+var spotgen = new Generator("#top Beach House", clientId, clientKey);
 ```
 
 The generator will then use these values to acquire an access token for web API requests. If one already has a token, then one can pass that to `Generator` as well:
 
 ```js
-var spotgen = new Generator('#top Beach House', clientId, clientKey, token)
+var spotgen = new Generator("#top Beach House", clientId, clientKey, token);
 ```
 
-Developer version
------------------
+## Developer version
 
 Instead of installing the package with `npm`, one can fetch the source code from [GitHub](https://github.com/epsil/spotgen). Then one is ensured to have the latest version:
 
@@ -425,36 +417,32 @@ The package includes a test suite. To run it, enter:
 
     npm test
 
-Feedback
---------
+## Feedback
 
 Please post suggestions and bug reports at the project's [bug tracker](https://github.com/epsil/spotgen/issues). When reporting a bug, it is helpful to include the minimum number of steps necessary to reproduce the problem, as well as the version number (`spotgen --version`).
 
-Thanks
-------
+## Thanks
 
 This tool is freeware. You can [donate Bitcoin](https://epsil.github.io/donate/) to: [`13cF1WPEfX2AobEJH5eTkde9MKfRhFGuDU`](bitcoin:13cF1WPEfX2AobEJH5eTkde9MKfRhFGuDU)
 
-License
--------
+## License
 
 [MIT License](LICENSE).
 
-Links
------
+## Links
 
--   [Web demo](https://epsil.github.io/spotgen/)
--   [npm package](https://www.npmjs.com/package/spotgen)
--   [GitHub repository](https://github.com/epsil/spotgen)
--   [Developer documentation](https://epsil.github.io/spotgen/doc/)
--   [Spotify Web API documentation](http://developer.spotify.com/web-api/authorization-guide/#implicit-grant-flow)
--   [Additional tips](Tips.md)
+- [Web demo](https://epsil.github.io/spotgen/)
+- [npm package](https://www.npmjs.com/package/spotgen)
+- [GitHub repository](https://github.com/epsil/spotgen)
+- [Developer documentation](https://epsil.github.io/spotgen/doc/)
+- [Spotify Web API documentation](http://developer.spotify.com/web-api/authorization-guide/#implicit-grant-flow)
+- [Additional tips](Tips.md)
 
 ### See also
 
--   [Exportify](https://github.com/watsonbox/exportify), for exporting Spotify playlists to CSV format
--   [Spotlistr](http://spotlistr.herokuapp.com/) ([source](https://github.com/BobNisco/Spotlistr)), conversion app
--   [Playlist Converter](http://www.playlist-converter.net/), conversion app
--   [MagicPlaylist](http://magicplaylist.co/) ([source](https://github.com/loverajoel/magicplaylist)), recommendations
--   [20v](http://20v.co/) ([source](https://github.com/fusenlabs/20v)), recommendations
--   [Spotibot](http://www.spotibot.com/), recommendations
+- [Exportify](https://github.com/watsonbox/exportify), for exporting Spotify playlists to CSV format
+- [Spotlistr](http://spotlistr.herokuapp.com/) ([source](https://github.com/BobNisco/Spotlistr)), conversion app
+- [Playlist Converter](http://www.playlist-converter.net/), conversion app
+- [MagicPlaylist](http://magicplaylist.co/) ([source](https://github.com/loverajoel/magicplaylist)), recommendations
+- [20v](http://20v.co/) ([source](https://github.com/fusenlabs/20v)), recommendations
+- [Spotibot](http://www.spotibot.com/), recommendations

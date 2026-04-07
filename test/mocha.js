@@ -1,4 +1,4 @@
-(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){const a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);const f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}const l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){const n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}let i=typeof require=="function"&&require;for(let o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 (function (process,global){
 /**
  * Shim process.stdout.
@@ -6,7 +6,7 @@
 
 process.stdout = require('browser-stdout')();
 
-var Mocha = require('./lib/mocha');
+const Mocha = require('./lib/mocha');
 
 /**
  * Create a Mocha instance.
@@ -14,21 +14,21 @@ var Mocha = require('./lib/mocha');
  * @return {undefined}
  */
 
-var mocha = new Mocha({ reporter: 'html' });
+const mocha = new Mocha({ reporter: 'html' });
 
 /**
  * Save timer references to avoid Sinon interfering (see GH-237).
  */
 
-var Date = global.Date;
-var setTimeout = global.setTimeout;
-var setInterval = global.setInterval;
-var clearTimeout = global.clearTimeout;
-var clearInterval = global.clearInterval;
+const Date = global.Date;
+const setTimeout = global.setTimeout;
+const setInterval = global.setInterval;
+const clearTimeout = global.clearTimeout;
+const clearInterval = global.clearInterval;
 
-var uncaughtExceptionHandlers = [];
+const uncaughtExceptionHandlers = [];
 
-var originalOnerrorHandler = global.onerror;
+const originalOnerrorHandler = global.onerror;
 
 /**
  * Remove uncaughtException listener.
@@ -42,7 +42,7 @@ process.removeListener = function(e, fn){
     } else {
       global.onerror = function() {};
     }
-    var i = Mocha.utils.indexOf(uncaughtExceptionHandlers, fn);
+    const i = Mocha.utils.indexOf(uncaughtExceptionHandlers, fn);
     if (i != -1) { uncaughtExceptionHandlers.splice(i, 1); }
   }
 };
@@ -66,11 +66,11 @@ process.on = function(e, fn){
 // Ensure that this default UI does not expose its methods to the global scope.
 mocha.suite.removeAllListeners('pre-require');
 
-var immediateQueue = []
+let immediateQueue = []
   , immediateTimeout;
 
 function timeslice() {
-  var immediateStart = new Date().getTime();
+  const immediateStart = new Date().getTime();
   while (immediateQueue.length && (new Date().getTime() - immediateStart) < 100) {
     immediateQueue.shift()();
   }
@@ -121,7 +121,7 @@ mocha.ui = function(ui){
 
 mocha.setup = function(opts){
   if ('string' == typeof opts) opts = { ui: opts };
-  for (var opt in opts) this[opt](opts[opt]);
+  for (const opt in opts) this[opt](opts[opt]);
   return this;
 };
 
@@ -130,17 +130,17 @@ mocha.setup = function(opts){
  */
 
 mocha.run = function(fn){
-  var options = mocha.options;
+  const options = mocha.options;
   mocha.globals('location');
 
-  var query = Mocha.utils.parseQuery(global.location.search || '');
+  const query = Mocha.utils.parseQuery(global.location.search || '');
   if (query.grep) mocha.grep(new RegExp(query.grep));
   if (query.fgrep) mocha.grep(query.fgrep);
   if (query.invert) mocha.invert();
 
   return Mocha.prototype.run.call(mocha, function(err){
     // The DOM Document is not available in Web Workers.
-    var document = global.document;
+    const document = global.document;
     if (document && document.getElementById('mocha') && options.noHighlighting !== true) {
       Mocha.utils.highlightTags('code');
     }
@@ -184,7 +184,7 @@ exports.EventEmitter = EventEmitter;
 /**
  * Object#toString reference.
  */
-var objToString = Object.prototype.toString;
+const objToString = Object.prototype.toString;
 
 /**
  * Check if a value is an array.
@@ -239,7 +239,7 @@ EventEmitter.prototype.addListener = EventEmitter.prototype.on;
  * @return {EventEmitter} Emitter instance.
  */
 EventEmitter.prototype.once = function(name, fn) {
-  var self = this;
+  const self = this;
 
   function on() {
     self.removeListener(name, on);
@@ -262,12 +262,12 @@ EventEmitter.prototype.once = function(name, fn) {
  */
 EventEmitter.prototype.removeListener = function(name, fn) {
   if (this.$events && this.$events[name]) {
-    var list = this.$events[name];
+    const list = this.$events[name];
 
     if (isArray(list)) {
-      var pos = -1;
+      let pos = -1;
 
-      for (var i = 0, l = list.length; i < l; i++) {
+      for (let i = 0, l = list.length; i < l; i++) {
         if (list[i] === fn || (list[i].listener && list[i].listener === fn)) {
           pos = i;
           break;
@@ -346,20 +346,20 @@ EventEmitter.prototype.emit = function(name) {
     return false;
   }
 
-  var handler = this.$events[name];
+  const handler = this.$events[name];
 
   if (!handler) {
     return false;
   }
 
-  var args = Array.prototype.slice.call(arguments, 1);
+  const args = Array.prototype.slice.call(arguments, 1);
 
   if (typeof handler === 'function') {
     handler.apply(this, args);
   } else if (isArray(handler)) {
-    var listeners = handler.slice();
+    const listeners = handler.slice();
 
-    for (var i = 0, l = listeners.length; i < l; i++) {
+    for (let i = 0, l = listeners.length; i < l; i++) {
       listeners[i].apply(this, args);
     }
   } else {
@@ -452,17 +452,17 @@ Progress.prototype.update = function(n) {
  */
 Progress.prototype.draw = function(ctx) {
   try {
-    var percent = Math.min(this.percent, 100);
-    var size = this._size;
-    var half = size / 2;
-    var x = half;
-    var y = half;
-    var rad = half - 1;
-    var fontSize = this._fontSize;
+    const percent = Math.min(this.percent, 100);
+    const size = this._size;
+    const half = size / 2;
+    const x = half;
+    const y = half;
+    const rad = half - 1;
+    const fontSize = this._fontSize;
 
     ctx.font = fontSize + 'px ' + this._font;
 
-    var angle = Math.PI * 2 * (percent / 100);
+    const angle = Math.PI * 2 * (percent / 100);
     ctx.clearRect(0, 0, size, size);
 
     // outer circle
@@ -478,8 +478,8 @@ Progress.prototype.draw = function(ctx) {
     ctx.stroke();
 
     // text
-    var text = this._text || (percent | 0) + '%';
-    var w = ctx.measureText(text).width;
+    const text = this._text || (percent | 0) + '%';
+    const w = ctx.measureText(text).width;
 
     ctx.fillText(text, x - w / 2 + 1, y + fontSize / 2 - 1);
   } catch (err) {
@@ -614,8 +614,8 @@ Context.prototype.inspect = function() {
  * Module dependencies.
  */
 
-var Runnable = require('./runnable');
-var inherits = require('./utils').inherits;
+const Runnable = require('./runnable');
+const inherits = require('./utils').inherits;
 
 /**
  * Expose `Hook`.
@@ -662,9 +662,9 @@ Hook.prototype.error = function(err) {
  * Module dependencies.
  */
 
-var Suite = require('../suite');
-var Test = require('../test');
-var escapeRe = require('escape-string-regexp');
+const Suite = require('../suite');
+const Test = require('../test');
+const escapeRe = require('escape-string-regexp');
 
 /**
  * BDD-style interface:
@@ -684,10 +684,10 @@ var escapeRe = require('escape-string-regexp');
  * @param {Suite} suite Root suite.
  */
 module.exports = function(suite) {
-  var suites = [suite];
+  const suites = [suite];
 
   suite.on('pre-require', function(context, file, mocha) {
-    var common = require('./common')(suites, context);
+    const common = require('./common')(suites, context);
 
     context.before = common.before;
     context.after = common.after;
@@ -701,7 +701,7 @@ module.exports = function(suite) {
      */
 
     context.describe = context.context = function(title, fn) {
-      var suite = Suite.create(suites[0], title);
+      const suite = Suite.create(suites[0], title);
       suite.file = file;
       suites.unshift(suite);
       fn.call(suite);
@@ -714,7 +714,7 @@ module.exports = function(suite) {
      */
 
     context.xdescribe = context.xcontext = context.describe.skip = function(title, fn) {
-      var suite = Suite.create(suites[0], title);
+      const suite = Suite.create(suites[0], title);
       suite.pending = true;
       suites.unshift(suite);
       fn.call(suite);
@@ -726,7 +726,7 @@ module.exports = function(suite) {
      */
 
     context.describe.only = function(title, fn) {
-      var suite = context.describe(title, fn);
+      const suite = context.describe(title, fn);
       mocha.grep(suite.fullTitle());
       return suite;
     };
@@ -737,12 +737,12 @@ module.exports = function(suite) {
      * acting as a thunk.
      */
 
-    var it = context.it = context.specify = function(title, fn) {
-      var suite = suites[0];
+    const it = context.it = context.specify = function(title, fn) {
+      const suite = suites[0];
       if (suite.isPending()) {
         fn = null;
       }
-      var test = new Test(title, fn);
+      const test = new Test(title, fn);
       test.file = file;
       suite.addTest(test);
       return test;
@@ -753,8 +753,8 @@ module.exports = function(suite) {
      */
 
     context.it.only = function(title, fn) {
-      var test = it(title, fn);
-      var reString = '^' + escapeRe(test.fullTitle()) + '$';
+      const test = it(title, fn);
+      const reString = '^' + escapeRe(test.fullTitle()) + '$';
       mocha.grep(new RegExp(reString));
       return test;
     };
@@ -868,8 +868,8 @@ module.exports = function(suites, context) {
  * Module dependencies.
  */
 
-var Suite = require('../suite');
-var Test = require('../test');
+const Suite = require('../suite');
+const Test = require('../test');
 
 /**
  * Exports-style (as Node.js module) interface:
@@ -889,15 +889,15 @@ var Test = require('../test');
  * @param {Suite} suite Root suite.
  */
 module.exports = function(suite) {
-  var suites = [suite];
+  const suites = [suite];
 
   suite.on('require', visit);
 
   function visit(obj, file) {
-    var suite;
-    for (var key in obj) {
+    let suite;
+    for (const key in obj) {
       if (typeof obj[key] === 'function') {
-        var fn = obj[key];
+        const fn = obj[key];
         switch (key) {
           case 'before':
             suites[0].beforeAll(fn);
@@ -912,7 +912,7 @@ module.exports = function(suite) {
             suites[0].afterEach(fn);
             break;
           default:
-            var test = new Test(key, fn);
+            let test = new Test(key, fn);
             test.file = file;
             suites[0].addTest(test);
         }
@@ -937,9 +937,9 @@ exports.exports = require('./exports');
  * Module dependencies.
  */
 
-var Suite = require('../suite');
-var Test = require('../test');
-var escapeRe = require('escape-string-regexp');
+const Suite = require('../suite');
+const Test = require('../test');
+const escapeRe = require('escape-string-regexp');
 
 /**
  * QUnit-style interface:
@@ -947,12 +947,12 @@ var escapeRe = require('escape-string-regexp');
  *     suite('Array');
  *
  *     test('#length', function() {
- *       var arr = [1,2,3];
+ *       let arr = [1,2,3];
  *       ok(arr.length == 3);
  *     });
  *
  *     test('#indexOf()', function() {
- *       var arr = [1,2,3];
+ *       let arr = [1,2,3];
  *       ok(arr.indexOf(1) == 0);
  *       ok(arr.indexOf(2) == 1);
  *       ok(arr.indexOf(3) == 2);
@@ -967,10 +967,10 @@ var escapeRe = require('escape-string-regexp');
  * @param {Suite} suite Root suite.
  */
 module.exports = function(suite) {
-  var suites = [suite];
+  const suites = [suite];
 
   suite.on('pre-require', function(context, file, mocha) {
-    var common = require('./common')(suites, context);
+    const common = require('./common')(suites, context);
 
     context.before = common.before;
     context.after = common.after;
@@ -985,7 +985,7 @@ module.exports = function(suite) {
       if (suites.length > 1) {
         suites.shift();
       }
-      var suite = Suite.create(suites[0], title);
+      const suite = Suite.create(suites[0], title);
       suite.file = file;
       suites.unshift(suite);
       return suite;
@@ -996,7 +996,7 @@ module.exports = function(suite) {
      */
 
     context.suite.only = function(title, fn) {
-      var suite = context.suite(title, fn);
+      const suite = context.suite(title, fn);
       mocha.grep(suite.fullTitle());
     };
 
@@ -1007,7 +1007,7 @@ module.exports = function(suite) {
      */
 
     context.test = function(title, fn) {
-      var test = new Test(title, fn);
+      const test = new Test(title, fn);
       test.file = file;
       suites[0].addTest(test);
       return test;
@@ -1018,8 +1018,8 @@ module.exports = function(suite) {
      */
 
     context.test.only = function(title, fn) {
-      var test = context.test(title, fn);
-      var reString = '^' + escapeRe(test.fullTitle()) + '$';
+      const test = context.test(title, fn);
+      const reString = '^' + escapeRe(test.fullTitle()) + '$';
       mocha.grep(new RegExp(reString));
     };
 
@@ -1033,9 +1033,9 @@ module.exports = function(suite) {
  * Module dependencies.
  */
 
-var Suite = require('../suite');
-var Test = require('../test');
-var escapeRe = require('escape-string-regexp');
+const Suite = require('../suite');
+const Test = require('../test');
+const escapeRe = require('escape-string-regexp');
 
 /**
  * TDD-style interface:
@@ -1063,10 +1063,10 @@ var escapeRe = require('escape-string-regexp');
  * @param {Suite} suite Root suite.
  */
 module.exports = function(suite) {
-  var suites = [suite];
+  const suites = [suite];
 
   suite.on('pre-require', function(context, file, mocha) {
-    var common = require('./common')(suites, context);
+    const common = require('./common')(suites, context);
 
     context.setup = common.beforeEach;
     context.teardown = common.afterEach;
@@ -1079,7 +1079,7 @@ module.exports = function(suite) {
      * nested suites and/or tests.
      */
     context.suite = function(title, fn) {
-      var suite = Suite.create(suites[0], title);
+      const suite = Suite.create(suites[0], title);
       suite.file = file;
       suites.unshift(suite);
       fn.call(suite);
@@ -1091,7 +1091,7 @@ module.exports = function(suite) {
      * Pending suite.
      */
     context.suite.skip = function(title, fn) {
-      var suite = Suite.create(suites[0], title);
+      const suite = Suite.create(suites[0], title);
       suite.pending = true;
       suites.unshift(suite);
       fn.call(suite);
@@ -1102,7 +1102,7 @@ module.exports = function(suite) {
      * Exclusive test-case.
      */
     context.suite.only = function(title, fn) {
-      var suite = context.suite(title, fn);
+      const suite = context.suite(title, fn);
       mocha.grep(suite.fullTitle());
     };
 
@@ -1111,11 +1111,11 @@ module.exports = function(suite) {
      * callback `fn` acting as a thunk.
      */
     context.test = function(title, fn) {
-      var suite = suites[0];
+      const suite = suites[0];
       if (suite.isPending()) {
         fn = null;
       }
-      var test = new Test(title, fn);
+      const test = new Test(title, fn);
       test.file = file;
       suite.addTest(test);
       return test;
@@ -1126,8 +1126,8 @@ module.exports = function(suite) {
      */
 
     context.test.only = function(title, fn) {
-      var test = context.test(title, fn);
-      var reString = '^' + escapeRe(test.fullTitle()) + '$';
+      const test = context.test(title, fn);
+      const reString = '^' + escapeRe(test.fullTitle()) + '$';
       mocha.grep(new RegExp(reString));
     };
 
@@ -1148,10 +1148,10 @@ module.exports = function(suite) {
  * Module dependencies.
  */
 
-var escapeRe = require('escape-string-regexp');
-var path = require('path');
-var reporters = require('./reporters');
-var utils = require('./utils');
+const escapeRe = require('escape-string-regexp');
+const path = require('path');
+const reporters = require('./reporters');
+const utils = require('./utils');
 
 /**
  * Expose `Mocha`.
@@ -1164,7 +1164,7 @@ exports = module.exports = Mocha;
  */
 
 if (!process.browser) {
-  var cwd = process.cwd();
+  const cwd = process.cwd();
   module.paths.push(cwd, path.join(cwd, 'node_modules'));
 }
 
@@ -1280,7 +1280,7 @@ Mocha.prototype.reporter = function(reporter, reporterOptions) {
     this._reporter = reporter;
   } else {
     reporter = reporter || 'spec';
-    var _reporter;
+    let _reporter;
     // Try to load a built-in reporter.
     if (reporters[reporter]) {
       _reporter = reporters[reporter];
@@ -1352,8 +1352,8 @@ Mocha.prototype.ui = function(name) {
  * @api private
  */
 Mocha.prototype.loadFiles = function(fn) {
-  var self = this;
-  var suite = this.suite;
+  const self = this;
+  const suite = this.suite;
   this.files.forEach(function(file) {
     file = path.resolve(file);
     suite.emit('pre-require', global, file, self);
@@ -1369,12 +1369,12 @@ Mocha.prototype.loadFiles = function(fn) {
  * @api private
  */
 Mocha.prototype._growl = function(runner, reporter) {
-  var notify = require('growl');
+  const notify = require('growl');
 
   runner.on('end', function() {
-    var stats = reporter.stats;
+    const stats = reporter.stats;
     if (stats.failures) {
-      var msg = stats.failures + ' of ' + runner.total + ' tests failed';
+      const msg = stats.failures + ' of ' + runner.total + ' tests failed';
       notify(msg, { name: 'mocha', title: 'Failed', image: image('error') });
     } else {
       notify(stats.passes + ' tests passed in ' + stats.duration + 'ms', {
@@ -1608,11 +1608,11 @@ Mocha.prototype.run = function(fn) {
   if (this.files.length) {
     this.loadFiles();
   }
-  var suite = this.suite;
-  var options = this.options;
+  const suite = this.suite;
+  const options = this.options;
   options.files = this.files;
-  var runner = new exports.Runner(suite, options.delay);
-  var reporter = new this._reporter(runner, options);
+  const runner = new exports.Runner(suite, options.delay);
+  const reporter = new this._reporter(runner, options);
   runner.ignoreLeaks = options.ignoreLeaks !== false;
   runner.fullStackTrace = options.fullStackTrace;
   runner.asyncOnly = options.asyncOnly;
@@ -1648,11 +1648,11 @@ Mocha.prototype.run = function(fn) {
  * Helpers.
  */
 
-var s = 1000;
-var m = s * 60;
-var h = m * 60;
-var d = h * 24;
-var y = d * 365.25;
+const s = 1000;
+const m = s * 60;
+const h = m * 60;
+const d = h * 24;
+const y = d * 365.25;
 
 /**
  * Parse or format the given `val`.
@@ -1683,12 +1683,12 @@ module.exports = function(val, options) {
  * @return {number}
  */
 function parse(str) {
-  var match = (/^((?:\d+)?\.?\d+) *(ms|seconds?|s|minutes?|m|hours?|h|days?|d|years?|y)?$/i).exec(str);
+  const match = (/^((?:\d+)?\.?\d+) *(ms|seconds?|s|minutes?|m|hours?|h|days?|d|years?|y)?$/i).exec(str);
   if (!match) {
     return;
   }
-  var n = parseFloat(match[1]);
-  var type = (match[2] || 'ms').toLowerCase();
+  const n = parseFloat(match[1]);
+  const type = (match[2] || 'ms').toLowerCase();
   switch (type) {
     case 'years':
     case 'year':
@@ -1796,11 +1796,11 @@ function Pending(message) {
  * Module dependencies.
  */
 
-var tty = require('tty');
-var diff = require('diff');
-var ms = require('../ms');
-var utils = require('../utils');
-var supportsColor = process.browser ? null : require('supports-color');
+const tty = require('tty');
+const diff = require('diff');
+const ms = require('../ms');
+const utils = require('../utils');
+const supportsColor = process.browser ? null : require('supports-color');
 
 /**
  * Expose `Base`.
@@ -1814,18 +1814,18 @@ exports = module.exports = Base;
  */
 
 /* eslint-disable no-unused-vars, no-native-reassign */
-var Date = global.Date;
-var setTimeout = global.setTimeout;
-var setInterval = global.setInterval;
-var clearTimeout = global.clearTimeout;
-var clearInterval = global.clearInterval;
+const Date = global.Date;
+const setTimeout = global.setTimeout;
+const setInterval = global.setInterval;
+const clearTimeout = global.clearTimeout;
+const clearInterval = global.clearInterval;
 /* eslint-enable no-unused-vars, no-native-reassign */
 
 /**
  * Check if both stdio streams are associated with a tty.
  */
 
-var isatty = tty.isatty(1) && tty.isatty(2);
+const isatty = tty.isatty(1) && tty.isatty(2);
 
 /**
  * Enable coloring by default, except in the browser interface.
@@ -1893,7 +1893,7 @@ if (process.platform === 'win32') {
  * @return {string}
  * @api private
  */
-var color = exports.color = function(type, str) {
+const color = exports.color = function(type, str) {
   if (!exports.useColors) {
     return String(str);
   }
@@ -1956,14 +1956,14 @@ exports.list = function(failures) {
   console.log();
   failures.forEach(function(test, i) {
     // format
-    var fmt = color('error title', '  %s) %s:\n')
+    let fmt = color('error title', '  %s) %s:\n')
       + color('error message', '     %s')
       + color('error stack', '\n%s\n');
 
     // msg
-    var msg;
-    var err = test.err;
-    var message;
+    let msg;
+    const err = test.err;
+    let message;
     if (err.message && typeof err.message.toString === 'function') {
       message = err.message + '';
     } else if (typeof err.inspect === 'function') {
@@ -1971,11 +1971,11 @@ exports.list = function(failures) {
     } else {
       message = '';
     }
-    var stack = err.stack || message;
-    var index = stack.indexOf(message);
-    var actual = err.actual;
-    var expected = err.expected;
-    var escape = true;
+    let stack = err.stack || message;
+    let index = stack.indexOf(message);
+    let actual = err.actual;
+    let expected = err.expected;
+    let escape = true;
 
     if (index === -1) {
       msg = message;
@@ -1999,7 +1999,7 @@ exports.list = function(failures) {
       }
 
       fmt = color('error title', '  %s) %s:\n%s') + color('error stack', '\n%s\n');
-      var match = message.match(/^([^:]+): expected/);
+      const match = message.match(/^([^:]+): expected/);
       msg = '\n      ' + color('error message', match ? match[1] : msg);
 
       if (exports.inlineDiffs) {
@@ -2029,8 +2029,8 @@ exports.list = function(failures) {
  */
 
 function Base(runner) {
-  var stats = this.stats = { suites: 0, tests: 0, passes: 0, pending: 0, failures: 0 };
-  var failures = this.failures = [];
+  const stats = this.stats = { suites: 0, tests: 0, passes: 0, pending: 0, failures: 0 };
+  const failures = this.failures = [];
 
   if (!runner) {
     return;
@@ -2091,8 +2091,8 @@ function Base(runner) {
  * @api public
  */
 Base.prototype.epilogue = function() {
-  var stats = this.stats;
-  var fmt;
+  const stats = this.stats;
+  let fmt;
 
   console.log();
 
@@ -2148,12 +2148,12 @@ function pad(str, len) {
  * @return {string} Diff
  */
 function inlineDiff(err, escape) {
-  var msg = errorDiff(err, 'WordsWithSpace', escape);
+  let msg = errorDiff(err, 'WordsWithSpace', escape);
 
   // linenos
-  var lines = msg.split('\n');
+  const lines = msg.split('\n');
   if (lines.length > 4) {
-    var width = String(lines.length).length;
+    const width = String(lines.length).length;
     msg = lines.map(function(str, i) {
       return pad(++i, width) + ' |' + ' ' + str;
     }).join('\n');
@@ -2182,7 +2182,7 @@ function inlineDiff(err, escape) {
  * @return {string} The diff.
  */
 function unifiedDiff(err, escape) {
-  var indent = '      ';
+  const indent = '      ';
   function cleanUp(line) {
     if (escape) {
       line = escapeInvisibles(line);
@@ -2204,8 +2204,8 @@ function unifiedDiff(err, escape) {
   function notBlank(line) {
     return typeof line !== 'undefined' && line !== null;
   }
-  var msg = diff.createPatch('string', err.actual, err.expected);
-  var lines = msg.split('\n').splice(4);
+  const msg = diff.createPatch('string', err.actual, err.expected);
+  const lines = msg.split('\n').splice(4);
   return '\n      '
     + colorLines('diff added', '+ expected') + ' '
     + colorLines('diff removed', '- actual')
@@ -2223,8 +2223,8 @@ function unifiedDiff(err, escape) {
  * @return {string}
  */
 function errorDiff(err, type, escape) {
-  var actual = escape ? escapeInvisibles(err.actual) : err.actual;
-  var expected = escape ? escapeInvisibles(err.expected) : err.expected;
+  const actual = escape ? escapeInvisibles(err.actual) : err.actual;
+  const expected = escape ? escapeInvisibles(err.expected) : err.expected;
   return diff['diff' + type](actual, expected).map(function(str) {
     if (str.added) {
       return colorLines('diff added', str.value);
@@ -2266,7 +2266,7 @@ function colorLines(name, str) {
 /**
  * Object#toString reference.
  */
-var objToString = Object.prototype.toString;
+const objToString = Object.prototype.toString;
 
 /**
  * Check that a / b have the same type.
@@ -2286,8 +2286,8 @@ function sameType(a, b) {
  * Module dependencies.
  */
 
-var Base = require('./base');
-var utils = require('../utils');
+const Base = require('./base');
+const utils = require('../utils');
 
 /**
  * Expose `Doc`.
@@ -2304,7 +2304,7 @@ exports = module.exports = Doc;
 function Doc(runner) {
   Base.call(this, runner);
 
-  var indents = 2;
+  let indents = 2;
 
   function indent() {
     return Array(indents).join('  ');
@@ -2333,13 +2333,13 @@ function Doc(runner) {
 
   runner.on('pass', function(test) {
     console.log('%s  <dt>%s</dt>', indent(), utils.escape(test.title));
-    var code = utils.escape(utils.clean(test.body));
+    const code = utils.escape(utils.clean(test.body));
     console.log('%s  <dd><pre><code>%s</code></pre></dd>', indent(), code);
   });
 
   runner.on('fail', function(test, err) {
     console.log('%s  <dt class="error">%s</dt>', indent(), utils.escape(test.title));
-    var code = utils.escape(utils.clean(test.fn.body));
+    const code = utils.escape(utils.clean(test.fn.body));
     console.log('%s  <dd class="error"><pre><code>%s</code></pre></dd>', indent(), code);
     console.log('%s  <dd class="error">%s</dd>', indent(), utils.escape(err));
   });
@@ -2351,9 +2351,9 @@ function Doc(runner) {
  * Module dependencies.
  */
 
-var Base = require('./base');
-var inherits = require('../utils').inherits;
-var color = Base.color;
+const Base = require('./base');
+const inherits = require('../utils').inherits;
+const color = Base.color;
 
 /**
  * Expose `Dot`.
@@ -2370,9 +2370,9 @@ exports = module.exports = Dot;
 function Dot(runner) {
   Base.call(this, runner);
 
-  var self = this;
-  var width = Base.window.width * .75 | 0;
-  var n = -1;
+  const self = this;
+  const width = Base.window.width * .75 | 0;
+  let n = -1;
 
   runner.on('start', function() {
     process.stdout.write('\n');
@@ -2421,9 +2421,9 @@ inherits(Dot, Base);
  * Module dependencies.
  */
 
-var JSONCov = require('./json-cov');
-var readFileSync = require('fs').readFileSync;
-var join = require('path').join;
+const JSONCov = require('./json-cov');
+const readFileSync = require('fs').readFileSync;
+const join = require('path').join;
 
 /**
  * Expose `HTMLCov`.
@@ -2438,11 +2438,11 @@ exports = module.exports = HTMLCov;
  * @param {Runner} runner
  */
 function HTMLCov(runner) {
-  var jade = require('jade');
-  var file = join(__dirname, '/templates/coverage.jade');
-  var str = readFileSync(file, 'utf8');
-  var fn = jade.compile(str, { filename: file });
-  var self = this;
+  const jade = require('jade');
+  const file = join(__dirname, '/templates/coverage.jade');
+  const str = readFileSync(file, 'utf8');
+  const fn = jade.compile(str, { filename: file });
+  const self = this;
 
   JSONCov.call(this, runner, false);
 
@@ -2483,22 +2483,22 @@ function coverageClass(coveragePctg) {
  * Module dependencies.
  */
 
-var Base = require('./base');
-var utils = require('../utils');
-var Progress = require('../browser/progress');
-var escapeRe = require('escape-string-regexp');
-var escape = utils.escape;
+const Base = require('./base');
+const utils = require('../utils');
+const Progress = require('../browser/progress');
+const escapeRe = require('escape-string-regexp');
+const escape = utils.escape;
 
 /**
  * Save timer references to avoid Sinon interfering (see GH-237).
  */
 
 /* eslint-disable no-unused-vars, no-native-reassign */
-var Date = global.Date;
-var setTimeout = global.setTimeout;
-var setInterval = global.setInterval;
-var clearTimeout = global.clearTimeout;
-var clearInterval = global.clearInterval;
+const Date = global.Date;
+const setTimeout = global.setTimeout;
+const setInterval = global.setInterval;
+const clearTimeout = global.clearTimeout;
+const clearInterval = global.clearInterval;
 /* eslint-enable no-unused-vars, no-native-reassign */
 
 /**
@@ -2511,7 +2511,7 @@ exports = module.exports = HTML;
  * Stats template.
  */
 
-var statsTemplate = '<ul id="mocha-stats">'
+const statsTemplate = '<ul id="mocha-stats">'
   + '<li class="progress"><canvas width="40" height="40"></canvas></li>'
   + '<li class="passes"><a href="javascript:void(0);">passes:</a> <em>0</em></li>'
   + '<li class="failures"><a href="javascript:void(0);">failures:</a> <em>0</em></li>'
@@ -2527,24 +2527,24 @@ var statsTemplate = '<ul id="mocha-stats">'
 function HTML(runner) {
   Base.call(this, runner);
 
-  var self = this;
-  var stats = this.stats;
-  var stat = fragment(statsTemplate);
-  var items = stat.getElementsByTagName('li');
-  var passes = items[1].getElementsByTagName('em')[0];
-  var passesLink = items[1].getElementsByTagName('a')[0];
-  var failures = items[2].getElementsByTagName('em')[0];
-  var failuresLink = items[2].getElementsByTagName('a')[0];
-  var duration = items[3].getElementsByTagName('em')[0];
-  var canvas = stat.getElementsByTagName('canvas')[0];
-  var report = fragment('<ul id="mocha-report"></ul>');
-  var stack = [report];
-  var progress;
-  var ctx;
-  var root = document.getElementById('mocha');
+  const self = this;
+  const stats = this.stats;
+  const stat = fragment(statsTemplate);
+  const items = stat.getElementsByTagName('li');
+  const passes = items[1].getElementsByTagName('em')[0];
+  const passesLink = items[1].getElementsByTagName('a')[0];
+  const failures = items[2].getElementsByTagName('em')[0];
+  const failuresLink = items[2].getElementsByTagName('a')[0];
+  const duration = items[3].getElementsByTagName('em')[0];
+  const canvas = stat.getElementsByTagName('canvas')[0];
+  const report = fragment('<ul id="mocha-report"></ul>');
+  const stack = [report];
+  let progress;
+  let ctx;
+  const root = document.getElementById('mocha');
 
   if (canvas.getContext) {
-    var ratio = window.devicePixelRatio || 1;
+    const ratio = window.devicePixelRatio || 1;
     canvas.style.width = canvas.width;
     canvas.style.height = canvas.height;
     canvas.width *= ratio;
@@ -2562,7 +2562,7 @@ function HTML(runner) {
   on(passesLink, 'click', function(evt) {
     evt.preventDefault();
     unhide();
-    var name = (/pass/).test(report.className) ? '' : ' pass';
+    const name = (/pass/).test(report.className) ? '' : ' pass';
     report.className = report.className.replace(/fail|pass/g, '') + name;
     if (report.className.trim()) {
       hideSuitesWithout('test pass');
@@ -2573,7 +2573,7 @@ function HTML(runner) {
   on(failuresLink, 'click', function(evt) {
     evt.preventDefault();
     unhide();
-    var name = (/fail/).test(report.className) ? '' : ' fail';
+    const name = (/fail/).test(report.className) ? '' : ' fail';
     report.className = report.className.replace(/fail|pass/g, '') + name;
     if (report.className.trim()) {
       hideSuitesWithout('test fail');
@@ -2593,8 +2593,8 @@ function HTML(runner) {
     }
 
     // suite
-    var url = self.suiteURL(suite);
-    var el = fragment('<li class="suite"><h1><a href="%s">%s</a></h1></li>', url, escape(suite.title));
+    const url = self.suiteURL(suite);
+    const el = fragment('<li class="suite"><h1><a href="%s">%s</a></h1></li>', url, escape(suite.title));
 
     // container
     stack[0].appendChild(el);
@@ -2610,20 +2610,20 @@ function HTML(runner) {
   });
 
   runner.on('pass', function(test) {
-    var url = self.testURL(test);
-    var markup = '<li class="test pass %e"><h2>%e<span class="duration">%ems</span> '
+    const url = self.testURL(test);
+    const markup = '<li class="test pass %e"><h2>%e<span class="duration">%ems</span> '
       + '<a href="%s" class="replay">‣</a></h2></li>';
-    var el = fragment(markup, test.speed, test.title, test.duration, url);
+    const el = fragment(markup, test.speed, test.title, test.duration, url);
     self.addCodeToggle(el, test.body);
     appendToStack(el);
     updateStats();
   });
 
   runner.on('fail', function(test) {
-    var el = fragment('<li class="test fail"><h2>%e <a href="%e" class="replay">‣</a></h2></li>',
+    const el = fragment('<li class="test fail"><h2>%e <a href="%e" class="replay">‣</a></h2></li>',
       test.title, self.testURL(test));
-    var stackString; // Note: Includes leading newline
-    var message = test.err.toString();
+    let stackString; // Note: Includes leading newline
+    let message = test.err.toString();
 
     // <=IE7 stringifies to [Object Error]. Since it can be overloaded, we
     // check for the result of the stringifying.
@@ -2632,7 +2632,7 @@ function HTML(runner) {
     }
 
     if (test.err.stack) {
-      var indexOfMessage = test.err.stack.indexOf(test.err.message);
+      const indexOfMessage = test.err.stack.indexOf(test.err.message);
       if (indexOfMessage === -1) {
         stackString = test.err.stack;
       } else {
@@ -2660,7 +2660,7 @@ function HTML(runner) {
   });
 
   runner.on('pending', function(test) {
-    var el = fragment('<li class="test pass pending"><h2>%e</h2></li>', test.title);
+    const el = fragment('<li class="test pass pending"><h2>%e</h2></li>', test.title);
     appendToStack(el);
     updateStats();
   });
@@ -2674,13 +2674,13 @@ function HTML(runner) {
 
   function updateStats() {
     // TODO: add to stats
-    var percent = stats.tests / this.total * 100 | 0;
+    const percent = stats.tests / this.total * 100 | 0;
     if (progress) {
       progress.update(percent).draw(ctx);
     }
 
     // update stats
-    var ms = new Date() - stats.start;
+    const ms = new Date() - stats.start;
     text(passes, stats.passes);
     text(failures, stats.failures);
     text(duration, (ms / 1000).toFixed(2));
@@ -2694,7 +2694,7 @@ function HTML(runner) {
  * @return {string} A new URL.
  */
 function makeUrl(s) {
-  var search = window.location.search;
+  let search = window.location.search;
 
   // Remove previous grep query parameter if present
   if (search) {
@@ -2729,13 +2729,13 @@ HTML.prototype.testURL = function(test) {
  * @param {string} contents
  */
 HTML.prototype.addCodeToggle = function(el, contents) {
-  var h2 = el.getElementsByTagName('h2')[0];
+  const h2 = el.getElementsByTagName('h2')[0];
 
   on(h2, 'click', function() {
     pre.style.display = pre.style.display === 'none' ? 'block' : 'none';
   });
 
-  var pre = fragment('<pre><code>%e</code></pre>', utils.clean(contents));
+  let pre = fragment('<pre><code>%e</code></pre>', utils.clean(contents));
   el.appendChild(pre);
   pre.style.display = 'none';
 };
@@ -2755,9 +2755,9 @@ function error(msg) {
  * @param {string} html
  */
 function fragment(html) {
-  var args = arguments;
-  var div = document.createElement('div');
-  var i = 1;
+  const args = arguments;
+  const div = document.createElement('div');
+  let i = 1;
 
   div.innerHTML = html.replace(/%([se])/g, function(_, type) {
     switch (type) {
@@ -2777,9 +2777,9 @@ function fragment(html) {
  * @param {text} classname
  */
 function hideSuitesWithout(classname) {
-  var suites = document.getElementsByClassName('suite');
-  for (var i = 0; i < suites.length; i++) {
-    var els = suites[i].getElementsByClassName(classname);
+  const suites = document.getElementsByClassName('suite');
+  for (let i = 0; i < suites.length; i++) {
+    const els = suites[i].getElementsByClassName(classname);
     if (!els.length) {
       suites[i].className += ' hidden';
     }
@@ -2790,8 +2790,8 @@ function hideSuitesWithout(classname) {
  * Unhide .hidden suites.
  */
 function unhide() {
-  var els = document.getElementsByClassName('suite hidden');
-  for (var i = 0; i < els.length; ++i) {
+  const els = document.getElementsByClassName('suite hidden');
+  for (let i = 0; i < els.length; ++i) {
     els[i].className = els[i].className.replace('suite hidden', 'suite');
   }
 }
@@ -2849,7 +2849,7 @@ exports.JSONStream = exports['json-stream'] = require('./json-stream');
  * Module dependencies.
  */
 
-var Base = require('./base');
+const Base = require('./base');
 
 /**
  * Expose `JSONCov`.
@@ -2868,10 +2868,10 @@ function JSONCov(runner, output) {
   Base.call(this, runner);
 
   output = arguments.length === 1 || output;
-  var self = this;
-  var tests = [];
-  var failures = [];
-  var passes = [];
+  const self = this;
+  const tests = [];
+  const failures = [];
+  const passes = [];
 
   runner.on('test end', function(test) {
     tests.push(test);
@@ -2886,8 +2886,8 @@ function JSONCov(runner, output) {
   });
 
   runner.on('end', function() {
-    var cov = global._$jscoverage || {};
-    var result = self.cov = map(cov);
+    const cov = global._$jscoverage || {};
+    const result = self.cov = map(cov);
     result.stats = self.stats;
     result.tests = tests.map(clean);
     result.failures = failures.map(clean);
@@ -2909,7 +2909,7 @@ function JSONCov(runner, output) {
  */
 
 function map(cov) {
-  var ret = {
+  const ret = {
     instrumentation: 'node-jscoverage',
     sloc: 0,
     hits: 0,
@@ -2918,9 +2918,9 @@ function map(cov) {
     files: []
   };
 
-  for (var filename in cov) {
+  for (const filename in cov) {
     if (Object.prototype.hasOwnProperty.call(cov, filename)) {
-      var data = coverage(filename, cov[filename]);
+      const data = coverage(filename, cov[filename]);
       ret.files.push(data);
       ret.hits += data.hits;
       ret.misses += data.misses;
@@ -2949,7 +2949,7 @@ function map(cov) {
  * @return {Object}
  */
 function coverage(filename, data) {
-  var ret = {
+  const ret = {
     filename: filename,
     coverage: 0,
     hits: 0,
@@ -3004,7 +3004,7 @@ function clean(test) {
  * Module dependencies.
  */
 
-var Base = require('./base');
+const Base = require('./base');
 
 /**
  * Expose `List`.
@@ -3021,8 +3021,8 @@ exports = module.exports = List;
 function List(runner) {
   Base.call(this, runner);
 
-  var self = this;
-  var total = runner.total;
+  const self = this;
+  const total = runner.total;
 
   runner.on('start', function() {
     console.log(JSON.stringify(['start', { total: total }]));
@@ -3068,7 +3068,7 @@ function clean(test) {
  * Module dependencies.
  */
 
-var Base = require('./base');
+const Base = require('./base');
 
 /**
  * Expose `JSON`.
@@ -3085,11 +3085,11 @@ exports = module.exports = JSONReporter;
 function JSONReporter(runner) {
   Base.call(this, runner);
 
-  var self = this;
-  var tests = [];
-  var pending = [];
-  var failures = [];
-  var passes = [];
+  const self = this;
+  const tests = [];
+  const pending = [];
+  const failures = [];
+  const passes = [];
 
   runner.on('test end', function(test) {
     tests.push(test);
@@ -3108,7 +3108,7 @@ function JSONReporter(runner) {
   });
 
   runner.on('end', function() {
-    var obj = {
+    const obj = {
       stats: self.stats,
       tests: tests.map(clean),
       pending: pending.map(clean),
@@ -3148,7 +3148,7 @@ function clean(test) {
  * @return {Object}
  */
 function errorJSON(err) {
-  var res = {};
+  const res = {};
   Object.getOwnPropertyNames(err).forEach(function(key) {
     res[key] = err[key];
   }, err);
@@ -3162,10 +3162,10 @@ function errorJSON(err) {
  * Module dependencies.
  */
 
-var Base = require('./base');
-var inherits = require('../utils').inherits;
-var cursor = Base.cursor;
-var color = Base.color;
+const Base = require('./base');
+const inherits = require('../utils').inherits;
+const cursor = Base.cursor;
+const color = Base.color;
 
 /**
  * Expose `Landing`.
@@ -3200,16 +3200,16 @@ Base.colors.runway = 90;
 function Landing(runner) {
   Base.call(this, runner);
 
-  var self = this;
-  var width = Base.window.width * .75 | 0;
-  var total = runner.total;
-  var stream = process.stdout;
-  var plane = color('plane', '✈');
-  var crashed = -1;
-  var n = 0;
+  const self = this;
+  const width = Base.window.width * .75 | 0;
+  const total = runner.total;
+  const stream = process.stdout;
+  let plane = color('plane', '✈');
+  let crashed = -1;
+  let n = 0;
 
   function runway() {
-    var buf = Array(width).join('-');
+    const buf = Array(width).join('-');
     return '  ' + color('runway', buf);
   }
 
@@ -3220,7 +3220,7 @@ function Landing(runner) {
 
   runner.on('test end', function(test) {
     // check if the plane crashed
-    var col = crashed === -1 ? width * ++n / total | 0 : crashed;
+    const col = crashed === -1 ? width * ++n / total | 0 : crashed;
 
     // show the crash
     if (test.state === 'failed') {
@@ -3258,10 +3258,10 @@ inherits(Landing, Base);
  * Module dependencies.
  */
 
-var Base = require('./base');
-var inherits = require('../utils').inherits;
-var color = Base.color;
-var cursor = Base.cursor;
+const Base = require('./base');
+const inherits = require('../utils').inherits;
+const color = Base.color;
+const cursor = Base.cursor;
 
 /**
  * Expose `List`.
@@ -3278,8 +3278,8 @@ exports = module.exports = List;
 function List(runner) {
   Base.call(this, runner);
 
-  var self = this;
-  var n = 0;
+  const self = this;
+  let n = 0;
 
   runner.on('start', function() {
     console.log();
@@ -3290,13 +3290,13 @@ function List(runner) {
   });
 
   runner.on('pending', function(test) {
-    var fmt = color('checkmark', '  -')
+    const fmt = color('checkmark', '  -')
       + color('pending', ' %s');
     console.log(fmt, test.fullTitle());
   });
 
   runner.on('pass', function(test) {
-    var fmt = color('checkmark', '  ' + Base.symbols.dot)
+    const fmt = color('checkmark', '  ' + Base.symbols.dot)
       + color('pass', ' %s: ')
       + color(test.speed, '%dms');
     cursor.CR();
@@ -3323,14 +3323,14 @@ inherits(List, Base);
  * Module dependencies.
  */
 
-var Base = require('./base');
-var utils = require('../utils');
+const Base = require('./base');
+const utils = require('../utils');
 
 /**
  * Constants
  */
 
-var SUITE_PREFIX = '$';
+const SUITE_PREFIX = '$';
 
 /**
  * Expose `Markdown`.
@@ -3347,16 +3347,16 @@ exports = module.exports = Markdown;
 function Markdown(runner) {
   Base.call(this, runner);
 
-  var level = 0;
-  var buf = '';
+  let level = 0;
+  let buf = '';
 
   function title(str) {
     return Array(level).join('#') + ' ' + str;
   }
 
   function mapTOC(suite, obj) {
-    var ret = obj;
-    var key = SUITE_PREFIX + suite.title;
+    const ret = obj;
+    const key = SUITE_PREFIX + suite.title;
 
     obj = obj[key] = obj[key] || { suite: suite };
     suite.suites.forEach(function(suite) {
@@ -3368,9 +3368,9 @@ function Markdown(runner) {
 
   function stringifyTOC(obj, level) {
     ++level;
-    var buf = '';
-    var link;
-    for (var key in obj) {
+    let buf = '';
+    let link;
+    for (const key in obj) {
       if (key === 'suite') {
         continue;
       }
@@ -3385,7 +3385,7 @@ function Markdown(runner) {
   }
 
   function generateTOC(suite) {
-    var obj = mapTOC(suite, {});
+    const obj = mapTOC(suite, {});
     return stringifyTOC(obj, 0);
   }
 
@@ -3393,7 +3393,7 @@ function Markdown(runner) {
 
   runner.on('suite', function(suite) {
     ++level;
-    var slug = utils.slug(suite.fullTitle());
+    const slug = utils.slug(suite.fullTitle());
     buf += '<a name="' + slug + '"></a>' + '\n';
     buf += title(suite.title) + '\n';
   });
@@ -3403,7 +3403,7 @@ function Markdown(runner) {
   });
 
   runner.on('pass', function(test) {
-    var code = utils.clean(test.body);
+    const code = utils.clean(test.body);
     buf += test.title + '.\n';
     buf += '\n```js\n';
     buf += code + '\n';
@@ -3424,8 +3424,8 @@ function Markdown(runner) {
  * Module dependencies.
  */
 
-var Base = require('./base');
-var inherits = require('../utils').inherits;
+const Base = require('./base');
+const inherits = require('../utils').inherits;
 
 /**
  * Expose `Min`.
@@ -3464,8 +3464,8 @@ inherits(Min, Base);
  * Module dependencies.
  */
 
-var Base = require('./base');
-var inherits = require('../utils').inherits;
+const Base = require('./base');
+const inherits = require('../utils').inherits;
 
 /**
  * Expose `Dot`.
@@ -3483,9 +3483,9 @@ exports = module.exports = NyanCat;
 function NyanCat(runner) {
   Base.call(this, runner);
 
-  var self = this;
-  var width = Base.window.width * .75 | 0;
-  var nyanCatWidth = this.nyanCatWidth = 11;
+  const self = this;
+  const width = Base.window.width * .75 | 0;
+  const nyanCatWidth = this.nyanCatWidth = 11;
 
   this.colorIndex = 0;
   this.numberOfLines = 4;
@@ -3514,7 +3514,7 @@ function NyanCat(runner) {
 
   runner.on('end', function() {
     Base.cursor.show();
-    for (var i = 0; i < self.numberOfLines; i++) {
+    for (let i = 0; i < self.numberOfLines; i++) {
       write('\n');
     }
     self.epilogue();
@@ -3548,7 +3548,7 @@ NyanCat.prototype.draw = function() {
  */
 
 NyanCat.prototype.drawScoreboard = function() {
-  var stats = this.stats;
+  const stats = this.stats;
 
   function draw(type, n) {
     write(' ');
@@ -3571,11 +3571,11 @@ NyanCat.prototype.drawScoreboard = function() {
  */
 
 NyanCat.prototype.appendRainbow = function() {
-  var segment = this.tick ? '_' : '-';
-  var rainbowified = this.rainbowify(segment);
+  const segment = this.tick ? '_' : '-';
+  const rainbowified = this.rainbowify(segment);
 
-  for (var index = 0; index < this.numberOfLines; index++) {
-    var trajectory = this.trajectories[index];
+  for (let index = 0; index < this.numberOfLines; index++) {
+    const trajectory = this.trajectories[index];
     if (trajectory.length >= this.trajectoryWidthMax) {
       trajectory.shift();
     }
@@ -3590,7 +3590,7 @@ NyanCat.prototype.appendRainbow = function() {
  */
 
 NyanCat.prototype.drawRainbow = function() {
-  var self = this;
+  const self = this;
 
   this.trajectories.forEach(function(line) {
     write('\u001b[' + self.scoreboardWidth + 'C');
@@ -3607,10 +3607,10 @@ NyanCat.prototype.drawRainbow = function() {
  * @api private
  */
 NyanCat.prototype.drawNyanCat = function() {
-  var self = this;
-  var startWidth = this.scoreboardWidth + this.trajectories[0].length;
-  var dist = '\u001b[' + startWidth + 'C';
-  var padding = '';
+  const self = this;
+  const startWidth = this.scoreboardWidth + this.trajectories[0].length;
+  const dist = '\u001b[' + startWidth + 'C';
+  let padding = '';
 
   write(dist);
   write('_,------,');
@@ -3623,7 +3623,7 @@ NyanCat.prototype.drawNyanCat = function() {
 
   write(dist);
   padding = self.tick ? '_' : '__';
-  var tail = self.tick ? '~' : '^';
+  const tail = self.tick ? '~' : '^';
   write(tail + '|' + padding + this.face() + ' ');
   write('\n');
 
@@ -3643,7 +3643,7 @@ NyanCat.prototype.drawNyanCat = function() {
  */
 
 NyanCat.prototype.face = function() {
-  var stats = this.stats;
+  const stats = this.stats;
   if (stats.failures) {
     return '( x .x)';
   } else if (stats.pending) {
@@ -3683,14 +3683,14 @@ NyanCat.prototype.cursorDown = function(n) {
  * @return {Array}
  */
 NyanCat.prototype.generateColors = function() {
-  var colors = [];
+  const colors = [];
 
-  for (var i = 0; i < (6 * 7); i++) {
-    var pi3 = Math.floor(Math.PI / 3);
-    var n = (i * (1.0 / 6));
-    var r = Math.floor(3 * Math.sin(n) + 3);
-    var g = Math.floor(3 * Math.sin(n + 2 * pi3) + 3);
-    var b = Math.floor(3 * Math.sin(n + 4 * pi3) + 3);
+  for (let i = 0; i < (6 * 7); i++) {
+    const pi3 = Math.floor(Math.PI / 3);
+    const n = (i * (1.0 / 6));
+    const r = Math.floor(3 * Math.sin(n) + 3);
+    const g = Math.floor(3 * Math.sin(n + 2 * pi3) + 3);
+    const b = Math.floor(3 * Math.sin(n + 4 * pi3) + 3);
     colors.push(36 * r + 6 * g + b + 16);
   }
 
@@ -3708,7 +3708,7 @@ NyanCat.prototype.rainbowify = function(str) {
   if (!Base.useColors) {
     return str;
   }
-  var color = this.rainbowColors[this.colorIndex % this.rainbowColors.length];
+  const color = this.rainbowColors[this.colorIndex % this.rainbowColors.length];
   this.colorIndex += 1;
   return '\u001b[38;5;' + color + 'm' + str + '\u001b[0m';
 };
@@ -3729,10 +3729,10 @@ function write(string) {
  * Module dependencies.
  */
 
-var Base = require('./base');
-var inherits = require('../utils').inherits;
-var color = Base.color;
-var cursor = Base.cursor;
+const Base = require('./base');
+const inherits = require('../utils').inherits;
+const color = Base.color;
+const cursor = Base.cursor;
 
 /**
  * Expose `Progress`.
@@ -3756,11 +3756,11 @@ Base.colors.progress = 90;
 function Progress(runner, options) {
   Base.call(this, runner);
 
-  var self = this;
-  var width = Base.window.width * .50 | 0;
-  var total = runner.total;
-  var complete = 0;
-  var lastN = -1;
+  const self = this;
+  const width = Base.window.width * .50 | 0;
+  const total = runner.total;
+  let complete = 0;
+  let lastN = -1;
 
   // default chars
   options = options || {};
@@ -3780,9 +3780,9 @@ function Progress(runner, options) {
   runner.on('test end', function() {
     complete++;
 
-    var percent = complete / total;
-    var n = width * percent | 0;
-    var i = width - n;
+    const percent = complete / total;
+    const n = width * percent | 0;
+    const i = width - n;
 
     if (n === lastN && !options.verbose) {
       // Don't re-render the line if it hasn't changed
@@ -3821,10 +3821,10 @@ inherits(Progress, Base);
  * Module dependencies.
  */
 
-var Base = require('./base');
-var inherits = require('../utils').inherits;
-var color = Base.color;
-var cursor = Base.cursor;
+const Base = require('./base');
+const inherits = require('../utils').inherits;
+const color = Base.color;
+const cursor = Base.cursor;
 
 /**
  * Expose `Spec`.
@@ -3841,9 +3841,9 @@ exports = module.exports = Spec;
 function Spec(runner) {
   Base.call(this, runner);
 
-  var self = this;
-  var indents = 0;
-  var n = 0;
+  const self = this;
+  let indents = 0;
+  let n = 0;
 
   function indent() {
     return Array(indents).join('  ');
@@ -3866,12 +3866,12 @@ function Spec(runner) {
   });
 
   runner.on('pending', function(test) {
-    var fmt = indent() + color('pending', '  - %s');
+    const fmt = indent() + color('pending', '  - %s');
     console.log(fmt, test.title);
   });
 
   runner.on('pass', function(test) {
-    var fmt;
+    let fmt;
     if (test.speed === 'fast') {
       fmt = indent()
         + color('checkmark', '  ' + Base.symbols.ok)
@@ -3906,7 +3906,7 @@ inherits(Spec, Base);
  * Module dependencies.
  */
 
-var Base = require('./base');
+const Base = require('./base');
 
 /**
  * Expose `TAP`.
@@ -3923,12 +3923,12 @@ exports = module.exports = TAP;
 function TAP(runner) {
   Base.call(this, runner);
 
-  var n = 1;
-  var passes = 0;
-  var failures = 0;
+  let n = 1;
+  let passes = 0;
+  let failures = 0;
 
   runner.on('start', function() {
-    var total = runner.grepTotal(runner.suite);
+    const total = runner.grepTotal(runner.suite);
     console.log('%d..%d', 1, total);
   });
 
@@ -3977,24 +3977,24 @@ function title(test) {
  * Module dependencies.
  */
 
-var Base = require('./base');
-var utils = require('../utils');
-var inherits = utils.inherits;
-var fs = require('fs');
-var escape = utils.escape;
-var mkdirp = require('mkdirp');
-var path = require('path');
+const Base = require('./base');
+const utils = require('../utils');
+const inherits = utils.inherits;
+const fs = require('fs');
+const escape = utils.escape;
+const mkdirp = require('mkdirp');
+const path = require('path');
 
 /**
  * Save timer references to avoid Sinon interfering (see GH-237).
  */
 
 /* eslint-disable no-unused-vars, no-native-reassign */
-var Date = global.Date;
-var setTimeout = global.setTimeout;
-var setInterval = global.setInterval;
-var clearTimeout = global.clearTimeout;
-var clearInterval = global.clearInterval;
+const Date = global.Date;
+const setTimeout = global.setTimeout;
+const setInterval = global.setInterval;
+const clearTimeout = global.clearTimeout;
+const clearInterval = global.clearInterval;
 /* eslint-enable no-unused-vars, no-native-reassign */
 
 /**
@@ -4012,9 +4012,9 @@ exports = module.exports = XUnit;
 function XUnit(runner, options) {
   Base.call(this, runner);
 
-  var stats = this.stats;
-  var tests = [];
-  var self = this;
+  const stats = this.stats;
+  const tests = [];
+  const self = this;
 
   if (options.reporterOptions && options.reporterOptions.output) {
     if (!fs.createWriteStream) {
@@ -4097,14 +4097,14 @@ XUnit.prototype.write = function(line) {
  * @param {Test} test
  */
 XUnit.prototype.test = function(test) {
-  var attrs = {
+  const attrs = {
     classname: test.parent.fullTitle(),
     name: test.title,
     time: (test.duration / 1000) || 0
   };
 
   if (test.state === 'failed') {
-    var err = test.err;
+    const err = test.err;
     this.write(tag('testcase', attrs, false, tag('failure', {}, false, escape(err.message) + '\n' + escape(err.stack))));
   } else if (test.isPending()) {
     this.write(tag('testcase', attrs, false, tag('skipped', {}, true)));
@@ -4123,11 +4123,11 @@ XUnit.prototype.test = function(test) {
  * @return {string}
  */
 function tag(name, attrs, close, content) {
-  var end = close ? '/>' : '>';
-  var pairs = [];
-  var tag;
+  const end = close ? '/>' : '>';
+  const pairs = [];
+  let tag;
 
-  for (var key in attrs) {
+  for (const key in attrs) {
     if (Object.prototype.hasOwnProperty.call(attrs, key)) {
       pairs.push(key + '="' + escape(attrs[key]) + '"');
     }
@@ -4147,30 +4147,30 @@ function tag(name, attrs, close, content) {
  * Module dependencies.
  */
 
-var EventEmitter = require('events').EventEmitter;
-var Pending = require('./pending');
-var debug = require('debug')('mocha:runnable');
-var milliseconds = require('./ms');
-var utils = require('./utils');
-var inherits = utils.inherits;
+const EventEmitter = require('events').EventEmitter;
+const Pending = require('./pending');
+const debug = require('debug')('mocha:runnable');
+const milliseconds = require('./ms');
+const utils = require('./utils');
+const inherits = utils.inherits;
 
 /**
  * Save timer references to avoid Sinon interfering (see GH-237).
  */
 
 /* eslint-disable no-unused-vars, no-native-reassign */
-var Date = global.Date;
-var setTimeout = global.setTimeout;
-var setInterval = global.setInterval;
-var clearTimeout = global.clearTimeout;
-var clearInterval = global.clearInterval;
+const Date = global.Date;
+const setTimeout = global.setTimeout;
+const setInterval = global.setInterval;
+const clearTimeout = global.clearTimeout;
+const clearInterval = global.clearInterval;
 /* eslint-enable no-unused-vars, no-native-reassign */
 
 /**
  * Object#toString().
  */
 
-var toString = Object.prototype.toString;
+const toString = Object.prototype.toString;
 
 /**
  * Expose `Runnable`.
@@ -4357,8 +4357,8 @@ Runnable.prototype.inspect = function() {
  * @api private
  */
 Runnable.prototype.resetTimeout = function() {
-  var self = this;
-  var ms = this.timeout() || 1e9;
+  const self = this;
+  const ms = this.timeout() || 1e9;
 
   if (!this._enableTimeouts) {
     return;
@@ -4393,11 +4393,11 @@ Runnable.prototype.globals = function(globals) {
  * @api private
  */
 Runnable.prototype.run = function(fn) {
-  var self = this;
-  var start = new Date();
-  var ctx = this.ctx;
-  var finished;
-  var emitted;
+  const self = this;
+  const start = new Date();
+  const ctx = this.ctx;
+  let finished;
+  let emitted;
 
   // Sometimes the ctx exists, but it is not runnable
   if (ctx && ctx.runnable) {
@@ -4415,7 +4415,7 @@ Runnable.prototype.run = function(fn) {
 
   // finished
   function done(err) {
-    var ms = self.timeout();
+    const ms = self.timeout();
     if (self.timedOut) {
       return;
     }
@@ -4468,7 +4468,7 @@ Runnable.prototype.run = function(fn) {
   }
 
   function callFn(fn) {
-    var result = fn.call(ctx);
+    const result = fn.call(ctx);
     if (result && typeof result.then === 'function') {
       self.resetTimeout();
       result
@@ -4514,26 +4514,26 @@ Runnable.prototype.run = function(fn) {
  * Module dependencies.
  */
 
-var EventEmitter = require('events').EventEmitter;
-var Pending = require('./pending');
-var utils = require('./utils');
-var inherits = utils.inherits;
-var debug = require('debug')('mocha:runner');
-var Runnable = require('./runnable');
-var filter = utils.filter;
-var indexOf = utils.indexOf;
-var keys = utils.keys;
-var stackFilter = utils.stackTraceFilter();
-var stringify = utils.stringify;
-var type = utils.type;
-var undefinedError = utils.undefinedError;
-var isArray = utils.isArray;
+const EventEmitter = require('events').EventEmitter;
+const Pending = require('./pending');
+const utils = require('./utils');
+const inherits = utils.inherits;
+const debug = require('debug')('mocha:runner');
+const Runnable = require('./runnable');
+const filter = utils.filter;
+const indexOf = utils.indexOf;
+const keys = utils.keys;
+const stackFilter = utils.stackTraceFilter();
+const stringify = utils.stringify;
+const type = utils.type;
+const undefinedError = utils.undefinedError;
+const isArray = utils.isArray;
 
 /**
  * Non-enumerable globals.
  */
 
-var globals = [
+const globals = [
   'setTimeout',
   'clearTimeout',
   'setInterval',
@@ -4573,7 +4573,7 @@ module.exports = Runner;
  * until ready.
  */
 function Runner(suite, delay) {
-  var self = this;
+  const self = this;
   this._globals = [];
   this._abort = false;
   this._delay = delay;
@@ -4636,11 +4636,11 @@ Runner.prototype.grep = function(re, invert) {
  * @return {number}
  */
 Runner.prototype.grepTotal = function(suite) {
-  var self = this;
-  var total = 0;
+  const self = this;
+  let total = 0;
 
   suite.eachTest(function(test) {
-    var match = self._grep.test(test.fullTitle());
+    let match = self._grep.test(test.fullTitle());
     if (self._invert) {
       match = !match;
     }
@@ -4659,10 +4659,10 @@ Runner.prototype.grepTotal = function(suite) {
  * @api private
  */
 Runner.prototype.globalProps = function() {
-  var props = keys(global);
+  const props = keys(global);
 
   // non-enumerables
-  for (var i = 0; i < globals.length; ++i) {
+  for (let i = 0; i < globals.length; ++i) {
     if (~indexOf(props, globals[i])) {
       continue;
     }
@@ -4699,10 +4699,10 @@ Runner.prototype.checkGlobals = function(test) {
   if (this.ignoreLeaks) {
     return;
   }
-  var ok = this._globals;
+  let ok = this._globals;
 
-  var globals = this.globalProps();
-  var leaks;
+  const globals = this.globalProps();
+  let leaks;
 
   if (test) {
     ok = ok.concat(test._allowedGlobals || []);
@@ -4786,12 +4786,12 @@ Runner.prototype.failHook = function(hook, err) {
  */
 
 Runner.prototype.hook = function(name, fn) {
-  var suite = this.suite;
-  var hooks = suite['_' + name];
-  var self = this;
+  const suite = this.suite;
+  const hooks = suite['_' + name];
+  const self = this;
 
   function next(i) {
-    var hook = hooks[i];
+    const hook = hooks[i];
     if (!hook) {
       return fn();
     }
@@ -4808,7 +4808,7 @@ Runner.prototype.hook = function(name, fn) {
     }
 
     hook.run(function(err) {
-      var testError = hook.error();
+      const testError = hook.error();
       if (testError) {
         self.fail(self.test, testError);
       }
@@ -4843,8 +4843,8 @@ Runner.prototype.hook = function(name, fn) {
  * @param {Function} fn
  */
 Runner.prototype.hooks = function(name, suites, fn) {
-  var self = this;
-  var orig = this.suite;
+  const self = this;
+  const orig = this.suite;
 
   function next(suite) {
     self.suite = suite;
@@ -4856,7 +4856,7 @@ Runner.prototype.hooks = function(name, suites, fn) {
 
     self.hook(name, function(err) {
       if (err) {
-        var errSuite = self.suite;
+        const errSuite = self.suite;
         self.suite = orig;
         return fn(err, errSuite);
       }
@@ -4876,7 +4876,7 @@ Runner.prototype.hooks = function(name, suites, fn) {
  * @api private
  */
 Runner.prototype.hookUp = function(name, fn) {
-  var suites = [this.suite].concat(this.parents()).reverse();
+  const suites = [this.suite].concat(this.parents()).reverse();
   this.hooks(name, suites, fn);
 };
 
@@ -4888,7 +4888,7 @@ Runner.prototype.hookUp = function(name, fn) {
  * @api private
  */
 Runner.prototype.hookDown = function(name, fn) {
-  var suites = [this.suite].concat(this.parents());
+  const suites = [this.suite].concat(this.parents());
   this.hooks(name, suites, fn);
 };
 
@@ -4900,8 +4900,8 @@ Runner.prototype.hookDown = function(name, fn) {
  * @api private
  */
 Runner.prototype.parents = function() {
-  var suite = this.suite;
-  var suites = [];
+  let suite = this.suite;
+  const suites = [];
   while (suite.parent) {
     suite = suite.parent;
     suites.push(suite);
@@ -4916,8 +4916,8 @@ Runner.prototype.parents = function() {
  * @api private
  */
 Runner.prototype.runTest = function(fn) {
-  var self = this;
-  var test = this.test;
+  const self = this;
+  const test = this.test;
 
   if (this.asyncOnly) {
     test.asyncOnly = true;
@@ -4945,13 +4945,13 @@ Runner.prototype.runTest = function(fn) {
  * @param {Function} fn
  */
 Runner.prototype.runTests = function(suite, fn) {
-  var self = this;
-  var tests = suite.tests.slice();
-  var test;
+  const self = this;
+  const tests = suite.tests.slice();
+  let test;
 
   function hookErr(_, errSuite, after) {
     // before/after Each hook for errSuite failed:
-    var orig = self.suite;
+    const orig = self.suite;
 
     // for failed 'after each' hook start from errSuite parent,
     // otherwise start from errSuite itself
@@ -4998,7 +4998,7 @@ Runner.prototype.runTests = function(suite, fn) {
     }
 
     // grep
-    var match = self._grep.test(test.fullTitle());
+    let match = self._grep.test(test.fullTitle());
     if (self._invert) {
       match = !match;
     }
@@ -5040,12 +5040,12 @@ Runner.prototype.runTests = function(suite, fn) {
       self.runTest(function(err) {
         test = self.test;
         if (err) {
-          var retry = test.currentRetry();
+          const retry = test.currentRetry();
           if (err instanceof Pending) {
             test.pending = true;
             self.emit('pending', test);
           } else if (retry < test.retries()) {
-            var clonedTest = test.clone();
+            const clonedTest = test.clone();
             clonedTest.currentRetry(retry + 1);
             tests.unshift(clonedTest);
 
@@ -5085,10 +5085,10 @@ Runner.prototype.runTests = function(suite, fn) {
  * @param {Function} fn
  */
 Runner.prototype.runSuite = function(suite, fn) {
-  var i = 0;
-  var self = this;
-  var total = this.grepTotal(suite);
-  var afterAllHookCalled = false;
+  let i = 0;
+  const self = this;
+  const total = this.grepTotal(suite);
+  let afterAllHookCalled = false;
 
   debug('run suite %s', suite.fullTitle());
 
@@ -5115,7 +5115,7 @@ Runner.prototype.runSuite = function(suite, fn) {
       return done();
     }
 
-    var curr = suite.suites[i++];
+    const curr = suite.suites[i++];
     if (!curr) {
       return done();
     }
@@ -5180,7 +5180,7 @@ Runner.prototype.uncaught = function(err) {
   }
   err.uncaught = true;
 
-  var runnable = this.currentRunnable;
+  let runnable = this.currentRunnable;
 
   if (!runnable) {
     runnable = new Runnable('Uncaught error outside test suite');
@@ -5215,7 +5215,7 @@ Runner.prototype.uncaught = function(err) {
 
  // recover from hooks
   if (runnable.type === 'hook') {
-    var errSuite = this.suite;
+    const errSuite = this.suite;
     // if hook failure is in afterEach block
     if (runnable.fullTitle().indexOf('after each') > -1) {
       return this.hookErr(err, errSuite, true);
@@ -5244,7 +5244,7 @@ Runner.prototype.uncaught = function(err) {
  */
 function cleanSuiteReferences(suite) {
   function cleanArrReferences(arr) {
-    for (var i = 0; i < arr.length; i++) {
+    for (let i = 0; i < arr.length; i++) {
       delete arr[i].fn;
     }
   }
@@ -5265,7 +5265,7 @@ function cleanSuiteReferences(suite) {
     cleanArrReferences(suite._afterEach);
   }
 
-  for (var i = 0; i < suite.tests.length; i++) {
+  for (let i = 0; i < suite.tests.length; i++) {
     delete suite.tests[i].fn;
   }
 }
@@ -5281,8 +5281,8 @@ function cleanSuiteReferences(suite) {
  * @return {Runner} Runner instance.
  */
 Runner.prototype.run = function(fn) {
-  var self = this;
-  var rootSuite = this.suite;
+  const self = this;
+  const rootSuite = this.suite;
 
   fn = fn || function() {};
 
@@ -5372,7 +5372,7 @@ function filterLeaks(ok, globals) {
       return false;
     }
 
-    var matched = filter(ok, function(ok) {
+    const matched = filter(ok, function(ok) {
       if (~ok.indexOf('*')) {
         return key.indexOf(ok.split('*')[0]) === 0;
       }
@@ -5390,8 +5390,8 @@ function filterLeaks(ok, globals) {
  */
 function extraGlobals() {
   if (typeof process === 'object' && typeof process.version === 'string') {
-    var parts = process.version.split('.');
-    var nodeVersion = utils.reduce(parts, function(a, v) {
+    const parts = process.version.split('.');
+    const nodeVersion = utils.reduce(parts, function(a, v) {
       return a << 8 | v;
     });
 
@@ -5411,12 +5411,12 @@ function extraGlobals() {
  * Module dependencies.
  */
 
-var EventEmitter = require('events').EventEmitter;
-var Hook = require('./hook');
-var utils = require('./utils');
-var inherits = utils.inherits;
-var debug = require('debug')('mocha:suite');
-var milliseconds = require('./ms');
+const EventEmitter = require('events').EventEmitter;
+const Hook = require('./hook');
+const utils = require('./utils');
+const inherits = utils.inherits;
+const debug = require('debug')('mocha:suite');
+const milliseconds = require('./ms');
 
 /**
  * Expose `Suite`.
@@ -5435,7 +5435,7 @@ exports = module.exports = Suite;
  * @return {Suite}
  */
 exports.create = function(parent, title) {
-  var suite = new Suite(title, parent.ctx);
+  const suite = new Suite(title, parent.ctx);
   suite.parent = parent;
   title = suite.fullTitle();
   parent.addSuite(suite);
@@ -5482,7 +5482,7 @@ inherits(Suite, EventEmitter);
  * @return {Suite}
  */
 Suite.prototype.clone = function() {
-  var suite = new Suite(this.title);
+  const suite = new Suite(this.title);
   debug('clone');
   suite.ctx = this.ctx;
   suite.timeout(this.timeout());
@@ -5511,7 +5511,7 @@ Suite.prototype.timeout = function(ms) {
     ms = milliseconds(ms);
   }
   debug('timeout %d', ms);
-  this._timeout = parseInt(ms, 10);
+  this._timeout = Number.parseInt(ms, 10);
   return this;
 };
 
@@ -5527,7 +5527,7 @@ Suite.prototype.retries = function(n) {
     return this._retries;
   }
   debug('retries %d', n);
-  this._retries = parseInt(n, 10) || 0;
+  this._retries = Number.parseInt(n, 10) || 0;
   return this;
 };
 
@@ -5609,7 +5609,7 @@ Suite.prototype.beforeAll = function(title, fn) {
   }
   title = '"before all" hook' + (title ? ': ' + title : '');
 
-  var hook = new Hook(title, fn);
+  const hook = new Hook(title, fn);
   hook.parent = this;
   hook.timeout(this.timeout());
   hook.retries(this.retries());
@@ -5639,7 +5639,7 @@ Suite.prototype.afterAll = function(title, fn) {
   }
   title = '"after all" hook' + (title ? ': ' + title : '');
 
-  var hook = new Hook(title, fn);
+  const hook = new Hook(title, fn);
   hook.parent = this;
   hook.timeout(this.timeout());
   hook.retries(this.retries());
@@ -5669,7 +5669,7 @@ Suite.prototype.beforeEach = function(title, fn) {
   }
   title = '"before each" hook' + (title ? ': ' + title : '');
 
-  var hook = new Hook(title, fn);
+  const hook = new Hook(title, fn);
   hook.parent = this;
   hook.timeout(this.timeout());
   hook.retries(this.retries());
@@ -5699,7 +5699,7 @@ Suite.prototype.afterEach = function(title, fn) {
   }
   title = '"after each" hook' + (title ? ': ' + title : '');
 
-  var hook = new Hook(title, fn);
+  const hook = new Hook(title, fn);
   hook.parent = this;
   hook.timeout(this.timeout());
   hook.retries(this.retries());
@@ -5758,7 +5758,7 @@ Suite.prototype.addTest = function(test) {
  */
 Suite.prototype.fullTitle = function() {
   if (this.parent) {
-    var full = this.parent.fullTitle();
+    const full = this.parent.fullTitle();
     if (full) {
       return full + ' ' + this.title;
     }
@@ -5808,8 +5808,8 @@ Suite.prototype.run = function run() {
  * Module dependencies.
  */
 
-var Runnable = require('./runnable');
-var inherits = require('./utils').inherits;
+const Runnable = require('./runnable');
+const inherits = require('./utils').inherits;
 
 /**
  * Expose `Test`.
@@ -5836,7 +5836,7 @@ function Test(title, fn) {
 inherits(Test, Runnable);
 
 Test.prototype.clone = function() {
-  var test = new Test(this.title, this.fn);
+  const test = new Test(this.title, this.fn);
   test.timeout(this.timeout());
   test.slow(this.slow());
   test.enableTimeouts(this.enableTimeouts());
@@ -5857,21 +5857,21 @@ Test.prototype.clone = function() {
  * Module dependencies.
  */
 
-var basename = require('path').basename;
-var debug = require('debug')('mocha:watch');
-var exists = require('fs').existsSync || require('path').existsSync;
-var glob = require('glob');
-var join = require('path').join;
-var readdirSync = require('fs').readdirSync;
-var statSync = require('fs').statSync;
-var watchFile = require('fs').watchFile;
-var toISOString = require('to-iso-string');
+const basename = require('path').basename;
+const debug = require('debug')('mocha:watch');
+const exists = require('fs').existsSync || require('path').existsSync;
+const glob = require('glob');
+const join = require('path').join;
+const readdirSync = require('fs').readdirSync;
+const statSync = require('fs').statSync;
+const watchFile = require('fs').watchFile;
+const toISOString = require('to-iso-string');
 
 /**
  * Ignored directories.
  */
 
-var ignore = ['node_modules', '.git'];
+const ignore = ['node_modules', '.git'];
 
 exports.inherits = require('util').inherits;
 
@@ -5899,7 +5899,7 @@ exports.escape = function(html) {
  * @param {Object} scope
  */
 exports.forEach = function(arr, fn, scope) {
-  for (var i = 0, l = arr.length; i < l; i++) {
+  for (let i = 0, l = arr.length; i < l; i++) {
     fn.call(scope, arr[i], i);
   }
 };
@@ -5925,8 +5925,8 @@ exports.isString = function(obj) {
  * @return {Array}
  */
 exports.map = function(arr, fn, scope) {
-  var result = [];
-  for (var i = 0, l = arr.length; i < l; i++) {
+  const result = [];
+  for (let i = 0, l = arr.length; i < l; i++) {
     result.push(fn.call(scope, arr[i], i, arr));
   }
   return result;
@@ -5942,7 +5942,7 @@ exports.map = function(arr, fn, scope) {
  * @return {number}
  */
 exports.indexOf = function(arr, obj, start) {
-  for (var i = start || 0, l = arr.length; i < l; i++) {
+  for (let i = start || 0, l = arr.length; i < l; i++) {
     if (arr[i] === obj) {
       return i;
     }
@@ -5960,9 +5960,9 @@ exports.indexOf = function(arr, obj, start) {
  * @return {*}
  */
 exports.reduce = function(arr, fn, val) {
-  var rval = val;
+  let rval = val;
 
-  for (var i = 0, l = arr.length; i < l; i++) {
+  for (let i = 0, l = arr.length; i < l; i++) {
     rval = fn(rval, arr[i], i, arr);
   }
 
@@ -5978,10 +5978,10 @@ exports.reduce = function(arr, fn, val) {
  * @return {Array}
  */
 exports.filter = function(arr, fn) {
-  var ret = [];
+  const ret = [];
 
-  for (var i = 0, l = arr.length; i < l; i++) {
-    var val = arr[i];
+  for (let i = 0, l = arr.length; i < l; i++) {
+    const val = arr[i];
     if (fn(val, i, arr)) {
       ret.push(val);
     }
@@ -5998,10 +5998,10 @@ exports.filter = function(arr, fn) {
  * @return {Array} keys
  */
 exports.keys = typeof Object.keys === 'function' ? Object.keys : function(obj) {
-  var keys = [];
-  var has = Object.prototype.hasOwnProperty; // for `window` on <=IE8
+  const keys = [];
+  const has = Object.prototype.hasOwnProperty; // for `window` on <=IE8
 
-  for (var key in obj) {
+  for (const key in obj) {
     if (has.call(obj, key)) {
       keys.push(key);
     }
@@ -6019,7 +6019,7 @@ exports.keys = typeof Object.keys === 'function' ? Object.keys : function(obj) {
  * @param {Function} fn
  */
 exports.watch = function(files, fn) {
-  var options = { interval: 100 };
+  const options = { interval: 100 };
   files.forEach(function(file) {
     debug('file %s', file);
     watchFile(file, options, function(curr, prev) {
@@ -6037,7 +6037,7 @@ exports.watch = function(files, fn) {
  * @param {Object} obj
  * @return {Boolean}
  */
-var isArray = typeof Array.isArray === 'function' ? Array.isArray : function(obj) {
+const isArray = typeof Array.isArray === 'function' ? Array.isArray : function(obj) {
   return Object.prototype.toString.call(obj) === '[object Array]';
 };
 
@@ -6078,7 +6078,7 @@ exports.files = function(dir, ext, ret) {
   ret = ret || [];
   ext = ext || ['js'];
 
-  var re = new RegExp('\\.(' + ext.join('|') + ')$');
+  const re = new RegExp('\\.(' + ext.join('|') + ')$');
 
   readdirSync(dir)
     .filter(ignored)
@@ -6120,9 +6120,9 @@ exports.clean = function(str) {
     .replace(/^function *\(.*\)\s*\{|\(.*\) *=> *\{?/, '')
     .replace(/\s+\}$/, '');
 
-  var spaces = str.match(/^\n?( *)/)[1].length;
-  var tabs = str.match(/^\n?(\t*)/)[1].length;
-  var re = new RegExp('^\n?' + (tabs ? '\t' : ' ') + '{' + (tabs ? tabs : spaces) + '}', 'gm');
+  const spaces = str.match(/^\n?( *)/)[1].length;
+  const tabs = str.match(/^\n?(\t*)/)[1].length;
+  const re = new RegExp('^\n?' + (tabs ? '\t' : ' ') + '{' + (tabs ? tabs : spaces) + '}', 'gm');
 
   str = str.replace(re, '');
 
@@ -6149,9 +6149,9 @@ exports.trim = function(str) {
  */
 exports.parseQuery = function(qs) {
   return exports.reduce(qs.replace('?', '').split('&'), function(obj, pair) {
-    var i = pair.indexOf('=');
-    var key = pair.slice(0, i);
-    var val = pair.slice(++i);
+    let i = pair.indexOf('=');
+    const key = pair.slice(0, i);
+    const val = pair.slice(++i);
 
     obj[key] = decodeURIComponent(val);
     return obj;
@@ -6174,7 +6174,7 @@ function highlight(js) {
     .replace(/(\d+\.\d+)/gm, '<span class="number">$1</span>')
     .replace(/(\d+)/gm, '<span class="number">$1</span>')
     .replace(/\bnew[ \t]+(\w+)/gm, '<span class="keyword">new</span> <span class="init">$1</span>')
-    .replace(/\b(function|new|throw|return|var|if|else)\b/gm, '<span class="keyword">$1</span>');
+    .replace(/\b(function|new|throw|return|let|if|else)\b/gm, '<span class="keyword">$1</span>');
 }
 
 /**
@@ -6184,8 +6184,8 @@ function highlight(js) {
  * @param {string} name
  */
 exports.highlightTags = function(name) {
-  var code = document.getElementById('mocha').getElementsByTagName(name);
-  for (var i = 0, len = code.length; i < len; ++i) {
+  const code = document.getElementById('mocha').getElementsByTagName(name);
+  for (let i = 0, len = code.length; i < len; ++i) {
     code[i].innerHTML = highlight(code[i].innerHTML);
   }
 };
@@ -6268,19 +6268,19 @@ exports.type = function type(value) {
  * @return {string}
  */
 exports.stringify = function(value) {
-  var type = exports.type(value);
+  const type = exports.type(value);
 
   if (!~exports.indexOf(['object', 'array', 'function'], type)) {
     if (type !== 'buffer') {
       return jsonStringify(value);
     }
-    var json = value.toJSON();
+    const json = value.toJSON();
     // Based on the toJSON result
     return jsonStringify(json.data && json.type ? json.data : json, 2)
       .replace(/,(\n|$)/g, '$1');
   }
 
-  for (var prop in value) {
+  for (const prop in value) {
     if (Object.prototype.hasOwnProperty.call(value, prop)) {
       return jsonStringify(exports.canonicalize(value), 2).replace(/,(\n|$)/g, '$1');
     }
@@ -6305,10 +6305,10 @@ function jsonStringify(object, spaces, depth) {
   }
 
   depth = depth || 1;
-  var space = spaces * depth;
-  var str = isArray(object) ? '[' : '{';
-  var end = isArray(object) ? ']' : '}';
-  var length = typeof object.length === 'number' ? object.length : exports.keys(object).length;
+  let space = spaces * depth;
+  let str = isArray(object) ? '[' : '{';
+  const end = isArray(object) ? ']' : '}';
+  let length = typeof object.length === 'number' ? object.length : exports.keys(object).length;
   // `.repeat()` polyfill
   function repeat(s, n) {
     return new Array(n).join(s);
@@ -6333,7 +6333,7 @@ function jsonStringify(object, spaces, depth) {
           : val.toString();
         break;
       case 'date':
-        var sDate;
+        let sDate;
         if (isNaN(val.getTime())) { // Invalid date
           sDate = val.toString();
         } else {
@@ -6342,7 +6342,7 @@ function jsonStringify(object, spaces, depth) {
         val = '[Date: ' + sDate + ']';
         break;
       case 'buffer':
-        var json = val.toJSON();
+        let json = val.toJSON();
         // Based on the toJSON result
         json = json.data && json.type ? json.data : json;
         val = '[Buffer: ' + jsonStringify(json, 2, depth + 1) + ']';
@@ -6355,7 +6355,7 @@ function jsonStringify(object, spaces, depth) {
     return val;
   }
 
-  for (var i in object) {
+  for (const i in object) {
     if (!Object.prototype.hasOwnProperty.call(object, i)) {
       continue; // not my business
     }
@@ -6401,11 +6401,11 @@ exports.isBuffer = function(value) {
  * @return {(Object|Array|Function|string|undefined)}
  */
 exports.canonicalize = function(value, stack) {
-  var canonicalizedObj;
+  let canonicalizedObj;
   /* eslint-disable no-unused-vars */
-  var prop;
+  let prop;
   /* eslint-enable no-unused-vars */
-  var type = exports.type(value);
+  const type = exports.type(value);
   function withStack(value, fn) {
     stack.push(value);
     fn();
@@ -6475,8 +6475,8 @@ exports.canonicalize = function(value, stack) {
  * @return {string[]} An array of paths.
  */
 exports.lookupFiles = function lookupFiles(path, extensions, recursive) {
-  var files = [];
-  var re = new RegExp('\\.(' + extensions.join('|') + ')$');
+  let files = [];
+  const re = new RegExp('\\.(' + extensions.join('|') + ')$');
 
   if (!exists(path)) {
     if (exists(path + '.js')) {
@@ -6491,7 +6491,7 @@ exports.lookupFiles = function lookupFiles(path, extensions, recursive) {
   }
 
   try {
-    var stat = statSync(path);
+    const stat = statSync(path);
     if (stat.isFile()) {
       return path;
     }
@@ -6503,7 +6503,7 @@ exports.lookupFiles = function lookupFiles(path, extensions, recursive) {
   readdirSync(path).forEach(function(file) {
     file = join(path, file);
     try {
-      var stat = statSync(file);
+      let stat = statSync(file);
       if (stat.isDirectory()) {
         if (recursive) {
           files = files.concat(lookupFiles(file, extensions, recursive));
@@ -6555,9 +6555,9 @@ exports.getError = function(err) {
  */
 exports.stackTraceFilter = function() {
   // TODO: Replace with `process.browser`
-  var slash = '/';
-  var is = typeof document === 'undefined' ? { node: true } : { browser: true };
-  var cwd = is.node
+  const slash = '/';
+  const is = typeof document === 'undefined' ? { node: true } : { browser: true };
+  const cwd = is.node
       ? process.cwd() + slash
       : (typeof location === 'undefined' ? window.location : location).href.replace(/\/[^\/]*$/, '/');
 
@@ -6609,13 +6609,13 @@ exports.stackTraceFilter = function() {
 exports.toByteArray = toByteArray
 exports.fromByteArray = fromByteArray
 
-var lookup = []
-var revLookup = []
-var Arr = typeof Uint8Array !== 'undefined' ? Uint8Array : Array
+const lookup = []
+const revLookup = []
+const Arr = typeof Uint8Array !== 'undefined' ? Uint8Array : Array
 
 function init () {
-  var code = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
-  for (var i = 0, len = code.length; i < len; ++i) {
+  const code = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
+  for (let i = 0, len = code.length; i < len; ++i) {
     lookup[i] = code[i]
     revLookup[code.charCodeAt(i)] = i
   }
@@ -6627,8 +6627,8 @@ function init () {
 init()
 
 function toByteArray (b64) {
-  var i, j, l, tmp, placeHolders, arr
-  var len = b64.length
+  let i, j, l, tmp, placeHolders, arr
+  const len = b64.length
 
   if (len % 4 > 0) {
     throw new Error('Invalid string. Length must be a multiple of 4')
@@ -6647,7 +6647,7 @@ function toByteArray (b64) {
   // if there are placeholders, only get up to the last complete 4 chars
   l = placeHolders > 0 ? len - 4 : len
 
-  var L = 0
+  let L = 0
 
   for (i = 0, j = 0; i < l; i += 4, j += 3) {
     tmp = (revLookup[b64.charCodeAt(i)] << 18) | (revLookup[b64.charCodeAt(i + 1)] << 12) | (revLookup[b64.charCodeAt(i + 2)] << 6) | revLookup[b64.charCodeAt(i + 3)]
@@ -6673,9 +6673,9 @@ function tripletToBase64 (num) {
 }
 
 function encodeChunk (uint8, start, end) {
-  var tmp
-  var output = []
-  for (var i = start; i < end; i += 3) {
+  let tmp
+  const output = []
+  for (let i = start; i < end; i += 3) {
     tmp = (uint8[i] << 16) + (uint8[i + 1] << 8) + (uint8[i + 2])
     output.push(tripletToBase64(tmp))
   }
@@ -6683,15 +6683,15 @@ function encodeChunk (uint8, start, end) {
 }
 
 function fromByteArray (uint8) {
-  var tmp
-  var len = uint8.length
-  var extraBytes = len % 3 // if we have 1 byte left, pad 2 bytes
-  var output = ''
-  var parts = []
-  var maxChunkLength = 16383 // must be multiple of 3
+  let tmp
+  const len = uint8.length
+  const extraBytes = len % 3 // if we have 1 byte left, pad 2 bytes
+  let output = ''
+  const parts = []
+  const maxChunkLength = 16383 // must be multiple of 3
 
   // go through the array every three bytes, we'll deal with trailing stuff later
-  for (var i = 0, len2 = len - extraBytes; i < len2; i += maxChunkLength) {
+  for (let i = 0, len2 = len - extraBytes; i < len2; i += maxChunkLength) {
     parts.push(encodeChunk(uint8, i, (i + maxChunkLength) > len2 ? len2 : (i + maxChunkLength)))
   }
 
@@ -6718,8 +6718,8 @@ function fromByteArray (uint8) {
 
 },{}],42:[function(require,module,exports){
 (function (process){
-var WritableStream = require('stream').Writable
-var inherits = require('util').inherits
+const WritableStream = require('stream').Writable
+const inherits = require('util').inherits
 
 module.exports = BrowserStdout
 
@@ -6735,7 +6735,7 @@ function BrowserStdout(opts) {
 }
 
 BrowserStdout.prototype._write = function(chunks, encoding, cb) {
-  var output = chunks.toString ? chunks.toString() : chunks
+  const output = chunks.toString ? chunks.toString() : chunks
   if (this.label === false) {
     console.log(output)
   } else {
@@ -6751,10 +6751,10 @@ arguments[4][41][0].apply(exports,arguments)
 (function (global){
 'use strict';
 
-var buffer = require('buffer');
-var Buffer = buffer.Buffer;
-var SlowBuffer = buffer.SlowBuffer;
-var MAX_LEN = buffer.kMaxLength || 2147483647;
+const buffer = require('buffer');
+const Buffer = buffer.Buffer;
+const SlowBuffer = buffer.SlowBuffer;
+const MAX_LEN = buffer.kMaxLength || 2147483647;
 exports.alloc = function alloc(size, fill, encoding) {
   if (typeof Buffer.alloc === 'function') {
     return Buffer.alloc(size, fill, encoding);
@@ -6768,17 +6768,17 @@ exports.alloc = function alloc(size, fill, encoding) {
   if (size > MAX_LEN) {
     throw new RangeError('size is too large');
   }
-  var enc = encoding;
-  var _fill = fill;
+  let enc = encoding;
+  let _fill = fill;
   if (_fill === undefined) {
     enc = undefined;
     _fill = 0;
   }
-  var buf = new Buffer(size);
+  const buf = new Buffer(size);
   if (typeof _fill === 'string') {
-    var fillBuf = new Buffer(_fill, enc);
-    var flen = fillBuf.length;
-    var i = -1;
+    const fillBuf = new Buffer(_fill, enc);
+    const flen = fillBuf.length;
+    let i = -1;
     while (++i < size) {
       buf[i] = fillBuf[i % flen];
     }
@@ -6810,14 +6810,14 @@ exports.from = function from(value, encodingOrOffset, length) {
     return new Buffer(value, encodingOrOffset);
   }
   if (typeof ArrayBuffer !== 'undefined' && value instanceof ArrayBuffer) {
-    var offset = encodingOrOffset;
+    let offset = encodingOrOffset;
     if (arguments.length === 1) {
       return new Buffer(value);
     }
     if (typeof offset === 'undefined') {
       offset = 0;
     }
-    var len = length;
+    let len = length;
     if (typeof len === 'undefined') {
       len = value.byteLength - offset;
     }
@@ -6830,7 +6830,7 @@ exports.from = function from(value, encodingOrOffset, length) {
     return new Buffer(value.slice(offset, offset + len));
   }
   if (Buffer.isBuffer(value)) {
-    var out = new Buffer(value.length);
+    const out = new Buffer(value.length);
     value.copy(out, 0, 0, value.length);
     return out;
   }
@@ -6871,9 +6871,9 @@ exports.allocUnsafeSlow = function allocUnsafeSlow(size) {
 
 'use strict'
 
-var base64 = require('base64-js')
-var ieee754 = require('ieee754')
-var isArray = require('isarray')
+const base64 = require('base64-js')
+const ieee754 = require('ieee754')
+const isArray = require('isarray')
 
 exports.Buffer = Buffer
 exports.SlowBuffer = SlowBuffer
@@ -6914,7 +6914,7 @@ exports.kMaxLength = kMaxLength()
 
 function typedArraySupport () {
   try {
-    var arr = new Uint8Array(1)
+    const arr = new Uint8Array(1)
     arr.foo = function () { return 42 }
     return arr.foo() === 42 && // typed array instances can be augmented
         typeof arr.subarray === 'function' && // chrome 9-10 lack `subarray`
@@ -7059,7 +7059,7 @@ function allocUnsafe (that, size) {
   assertSize(size)
   that = createBuffer(that, size < 0 ? 0 : checked(size) | 0)
   if (!Buffer.TYPED_ARRAY_SUPPORT) {
-    for (var i = 0; i < size; i++) {
+    for (let i = 0; i < size; i++) {
       that[i] = 0
     }
   }
@@ -7088,7 +7088,7 @@ function fromString (that, string, encoding) {
     throw new TypeError('"encoding" must be a valid string encoding')
   }
 
-  var length = byteLength(string, encoding) | 0
+  const length = byteLength(string, encoding) | 0
   that = createBuffer(that, length)
 
   that.write(string, encoding)
@@ -7096,9 +7096,9 @@ function fromString (that, string, encoding) {
 }
 
 function fromArrayLike (that, array) {
-  var length = checked(array.length) | 0
+  const length = checked(array.length) | 0
   that = createBuffer(that, length)
-  for (var i = 0; i < length; i += 1) {
+  for (let i = 0; i < length; i += 1) {
     that[i] = array[i] & 255
   }
   return that
@@ -7134,7 +7134,7 @@ function fromArrayBuffer (that, array, byteOffset, length) {
 
 function fromObject (that, obj) {
   if (Buffer.isBuffer(obj)) {
-    var len = checked(obj.length) | 0
+    const len = checked(obj.length) | 0
     that = createBuffer(that, len)
 
     if (that.length === 0) {
@@ -7190,10 +7190,10 @@ Buffer.compare = function compare (a, b) {
 
   if (a === b) return 0
 
-  var x = a.length
-  var y = b.length
+  let x = a.length
+  let y = b.length
 
-  for (var i = 0, len = Math.min(x, y); i < len; ++i) {
+  for (let i = 0, len = Math.min(x, y); i < len; ++i) {
     if (a[i] !== b[i]) {
       x = a[i]
       y = b[i]
@@ -7234,7 +7234,7 @@ Buffer.concat = function concat (list, length) {
     return Buffer.alloc(0)
   }
 
-  var i
+  let i
   if (length === undefined) {
     length = 0
     for (i = 0; i < list.length; i++) {
@@ -7242,10 +7242,10 @@ Buffer.concat = function concat (list, length) {
     }
   }
 
-  var buffer = Buffer.allocUnsafe(length)
-  var pos = 0
+  const buffer = Buffer.allocUnsafe(length)
+  let pos = 0
   for (i = 0; i < list.length; i++) {
-    var buf = list[i]
+    const buf = list[i]
     if (!Buffer.isBuffer(buf)) {
       throw new TypeError('"list" argument must be an Array of Buffers')
     }
@@ -7267,11 +7267,11 @@ function byteLength (string, encoding) {
     string = '' + string
   }
 
-  var len = string.length
+  const len = string.length
   if (len === 0) return 0
 
   // Use a for loop to avoid recursion
-  var loweredCase = false
+  let loweredCase = false
   for (;;) {
     switch (encoding) {
       case 'ascii':
@@ -7303,7 +7303,7 @@ function byteLength (string, encoding) {
 Buffer.byteLength = byteLength
 
 function slowToString (encoding, start, end) {
-  var loweredCase = false
+  let loweredCase = false
 
   // No need to verify that "this.length <= MAX_UINT32" since it's a read-only
   // property of a typed array.
@@ -7376,28 +7376,28 @@ function slowToString (encoding, start, end) {
 Buffer.prototype._isBuffer = true
 
 function swap (b, n, m) {
-  var i = b[n]
+  const i = b[n]
   b[n] = b[m]
   b[m] = i
 }
 
 Buffer.prototype.swap16 = function swap16 () {
-  var len = this.length
+  const len = this.length
   if (len % 2 !== 0) {
     throw new RangeError('Buffer size must be a multiple of 16-bits')
   }
-  for (var i = 0; i < len; i += 2) {
+  for (let i = 0; i < len; i += 2) {
     swap(this, i, i + 1)
   }
   return this
 }
 
 Buffer.prototype.swap32 = function swap32 () {
-  var len = this.length
+  const len = this.length
   if (len % 4 !== 0) {
     throw new RangeError('Buffer size must be a multiple of 32-bits')
   }
-  for (var i = 0; i < len; i += 4) {
+  for (let i = 0; i < len; i += 4) {
     swap(this, i, i + 3)
     swap(this, i + 1, i + 2)
   }
@@ -7405,7 +7405,7 @@ Buffer.prototype.swap32 = function swap32 () {
 }
 
 Buffer.prototype.toString = function toString () {
-  var length = this.length | 0
+  const length = this.length | 0
   if (length === 0) return ''
   if (arguments.length === 0) return utf8Slice(this, 0, length)
   return slowToString.apply(this, arguments)
@@ -7418,8 +7418,8 @@ Buffer.prototype.equals = function equals (b) {
 }
 
 Buffer.prototype.inspect = function inspect () {
-  var str = ''
-  var max = exports.INSPECT_MAX_BYTES
+  let str = ''
+  const max = exports.INSPECT_MAX_BYTES
   if (this.length > 0) {
     str = this.toString('hex', 0, max).match(/.{2}/g).join(' ')
     if (this.length > max) str += ' ... '
@@ -7466,14 +7466,14 @@ Buffer.prototype.compare = function compare (target, start, end, thisStart, this
 
   if (this === target) return 0
 
-  var x = thisEnd - thisStart
-  var y = end - start
-  var len = Math.min(x, y)
+  let x = thisEnd - thisStart
+  let y = end - start
+  const len = Math.min(x, y)
 
-  var thisCopy = this.slice(thisStart, thisEnd)
-  var targetCopy = target.slice(start, end)
+  const thisCopy = this.slice(thisStart, thisEnd)
+  const targetCopy = target.slice(start, end)
 
-  for (var i = 0; i < len; ++i) {
+  for (let i = 0; i < len; ++i) {
     if (thisCopy[i] !== targetCopy[i]) {
       x = thisCopy[i]
       y = targetCopy[i]
@@ -7487,9 +7487,9 @@ Buffer.prototype.compare = function compare (target, start, end, thisStart, this
 }
 
 function arrayIndexOf (arr, val, byteOffset, encoding) {
-  var indexSize = 1
-  var arrLength = arr.length
-  var valLength = val.length
+  let indexSize = 1
+  let arrLength = arr.length
+  let valLength = val.length
 
   if (encoding !== undefined) {
     encoding = String(encoding).toLowerCase()
@@ -7513,8 +7513,8 @@ function arrayIndexOf (arr, val, byteOffset, encoding) {
     }
   }
 
-  var foundIndex = -1
-  for (var i = 0; byteOffset + i < arrLength; i++) {
+  let foundIndex = -1
+  for (let i = 0; byteOffset + i < arrLength; i++) {
     if (read(arr, byteOffset + i) === read(val, foundIndex === -1 ? 0 : i - foundIndex)) {
       if (foundIndex === -1) foundIndex = i
       if (i - foundIndex + 1 === valLength) return (byteOffset + foundIndex) * indexSize
@@ -7570,7 +7570,7 @@ Buffer.prototype.includes = function includes (val, byteOffset, encoding) {
 
 function hexWrite (buf, string, offset, length) {
   offset = Number(offset) || 0
-  var remaining = buf.length - offset
+  const remaining = buf.length - offset
   if (!length) {
     length = remaining
   } else {
@@ -7581,14 +7581,14 @@ function hexWrite (buf, string, offset, length) {
   }
 
   // must be an even number of digits
-  var strLen = string.length
+  const strLen = string.length
   if (strLen % 2 !== 0) throw new Error('Invalid hex string')
 
   if (length > strLen / 2) {
     length = strLen / 2
   }
-  for (var i = 0; i < length; i++) {
-    var parsed = parseInt(string.substr(i * 2, 2), 16)
+  for (let i = 0; i < length; i++) {
+    const parsed = Number.parseInt(string.substr(i * 2, 2), 16)
     if (isNaN(parsed)) return i
     buf[offset + i] = parsed
   }
@@ -7643,7 +7643,7 @@ Buffer.prototype.write = function write (string, offset, length, encoding) {
     )
   }
 
-  var remaining = this.length - offset
+  const remaining = this.length - offset
   if (length === undefined || length > remaining) length = remaining
 
   if ((string.length > 0 && (length < 0 || offset < 0)) || offset > this.length) {
@@ -7652,7 +7652,7 @@ Buffer.prototype.write = function write (string, offset, length, encoding) {
 
   if (!encoding) encoding = 'utf8'
 
-  var loweredCase = false
+  let loweredCase = false
   for (;;) {
     switch (encoding) {
       case 'hex':
@@ -7703,19 +7703,19 @@ function base64Slice (buf, start, end) {
 
 function utf8Slice (buf, start, end) {
   end = Math.min(buf.length, end)
-  var res = []
+  const res = []
 
-  var i = start
+  let i = start
   while (i < end) {
-    var firstByte = buf[i]
-    var codePoint = null
-    var bytesPerSequence = (firstByte > 0xEF) ? 4
+    const firstByte = buf[i]
+    let codePoint = null
+    let bytesPerSequence = (firstByte > 0xEF) ? 4
       : (firstByte > 0xDF) ? 3
       : (firstByte > 0xBF) ? 2
       : 1
 
     if (i + bytesPerSequence <= end) {
-      var secondByte, thirdByte, fourthByte, tempCodePoint
+      let secondByte, thirdByte, fourthByte, tempCodePoint
 
       switch (bytesPerSequence) {
         case 1:
@@ -7777,17 +7777,17 @@ function utf8Slice (buf, start, end) {
 // Based on http://stackoverflow.com/a/22747272/680742, the browser with
 // the lowest limit is Chrome, with 0x10000 args.
 // We go 1 magnitude less, for safety
-var MAX_ARGUMENTS_LENGTH = 0x1000
+const MAX_ARGUMENTS_LENGTH = 0x1000
 
 function decodeCodePointsArray (codePoints) {
-  var len = codePoints.length
+  const len = codePoints.length
   if (len <= MAX_ARGUMENTS_LENGTH) {
     return String.fromCharCode.apply(String, codePoints) // avoid extra slice()
   }
 
   // Decode in chunks to avoid "call stack size exceeded".
-  var res = ''
-  var i = 0
+  let res = ''
+  let i = 0
   while (i < len) {
     res += String.fromCharCode.apply(
       String,
@@ -7798,49 +7798,49 @@ function decodeCodePointsArray (codePoints) {
 }
 
 function asciiSlice (buf, start, end) {
-  var ret = ''
+  let ret = ''
   end = Math.min(buf.length, end)
 
-  for (var i = start; i < end; i++) {
+  for (let i = start; i < end; i++) {
     ret += String.fromCharCode(buf[i] & 0x7F)
   }
   return ret
 }
 
 function binarySlice (buf, start, end) {
-  var ret = ''
+  let ret = ''
   end = Math.min(buf.length, end)
 
-  for (var i = start; i < end; i++) {
+  for (let i = start; i < end; i++) {
     ret += String.fromCharCode(buf[i])
   }
   return ret
 }
 
 function hexSlice (buf, start, end) {
-  var len = buf.length
+  const len = buf.length
 
   if (!start || start < 0) start = 0
   if (!end || end < 0 || end > len) end = len
 
-  var out = ''
-  for (var i = start; i < end; i++) {
+  let out = ''
+  for (let i = start; i < end; i++) {
     out += toHex(buf[i])
   }
   return out
 }
 
 function utf16leSlice (buf, start, end) {
-  var bytes = buf.slice(start, end)
-  var res = ''
-  for (var i = 0; i < bytes.length; i += 2) {
+  const bytes = buf.slice(start, end)
+  let res = ''
+  for (let i = 0; i < bytes.length; i += 2) {
     res += String.fromCharCode(bytes[i] + bytes[i + 1] * 256)
   }
   return res
 }
 
 Buffer.prototype.slice = function slice (start, end) {
-  var len = this.length
+  const len = this.length
   start = ~~start
   end = end === undefined ? len : ~~end
 
@@ -7860,14 +7860,14 @@ Buffer.prototype.slice = function slice (start, end) {
 
   if (end < start) end = start
 
-  var newBuf
+  let newBuf
   if (Buffer.TYPED_ARRAY_SUPPORT) {
     newBuf = this.subarray(start, end)
     newBuf.__proto__ = Buffer.prototype
   } else {
-    var sliceLen = end - start
+    const sliceLen = end - start
     newBuf = new Buffer(sliceLen, undefined)
-    for (var i = 0; i < sliceLen; i++) {
+    for (let i = 0; i < sliceLen; i++) {
       newBuf[i] = this[i + start]
     }
   }
@@ -7888,9 +7888,9 @@ Buffer.prototype.readUIntLE = function readUIntLE (offset, byteLength, noAssert)
   byteLength = byteLength | 0
   if (!noAssert) checkOffset(offset, byteLength, this.length)
 
-  var val = this[offset]
-  var mul = 1
-  var i = 0
+  let val = this[offset]
+  let mul = 1
+  let i = 0
   while (++i < byteLength && (mul *= 0x100)) {
     val += this[offset + i] * mul
   }
@@ -7905,8 +7905,8 @@ Buffer.prototype.readUIntBE = function readUIntBE (offset, byteLength, noAssert)
     checkOffset(offset, byteLength, this.length)
   }
 
-  var val = this[offset + --byteLength]
-  var mul = 1
+  let val = this[offset + --byteLength]
+  let mul = 1
   while (byteLength > 0 && (mul *= 0x100)) {
     val += this[offset + --byteLength] * mul
   }
@@ -7952,9 +7952,9 @@ Buffer.prototype.readIntLE = function readIntLE (offset, byteLength, noAssert) {
   byteLength = byteLength | 0
   if (!noAssert) checkOffset(offset, byteLength, this.length)
 
-  var val = this[offset]
-  var mul = 1
-  var i = 0
+  let val = this[offset]
+  let mul = 1
+  let i = 0
   while (++i < byteLength && (mul *= 0x100)) {
     val += this[offset + i] * mul
   }
@@ -7970,9 +7970,9 @@ Buffer.prototype.readIntBE = function readIntBE (offset, byteLength, noAssert) {
   byteLength = byteLength | 0
   if (!noAssert) checkOffset(offset, byteLength, this.length)
 
-  var i = byteLength
-  var mul = 1
-  var val = this[offset + --i]
+  let i = byteLength
+  let mul = 1
+  let val = this[offset + --i]
   while (i > 0 && (mul *= 0x100)) {
     val += this[offset + --i] * mul
   }
@@ -7991,13 +7991,13 @@ Buffer.prototype.readInt8 = function readInt8 (offset, noAssert) {
 
 Buffer.prototype.readInt16LE = function readInt16LE (offset, noAssert) {
   if (!noAssert) checkOffset(offset, 2, this.length)
-  var val = this[offset] | (this[offset + 1] << 8)
+  const val = this[offset] | (this[offset + 1] << 8)
   return (val & 0x8000) ? val | 0xFFFF0000 : val
 }
 
 Buffer.prototype.readInt16BE = function readInt16BE (offset, noAssert) {
   if (!noAssert) checkOffset(offset, 2, this.length)
-  var val = this[offset + 1] | (this[offset] << 8)
+  const val = this[offset + 1] | (this[offset] << 8)
   return (val & 0x8000) ? val | 0xFFFF0000 : val
 }
 
@@ -8050,12 +8050,12 @@ Buffer.prototype.writeUIntLE = function writeUIntLE (value, offset, byteLength, 
   offset = offset | 0
   byteLength = byteLength | 0
   if (!noAssert) {
-    var maxBytes = Math.pow(2, 8 * byteLength) - 1
+    const maxBytes = Math.pow(2, 8 * byteLength) - 1
     checkInt(this, value, offset, byteLength, maxBytes, 0)
   }
 
-  var mul = 1
-  var i = 0
+  let mul = 1
+  let i = 0
   this[offset] = value & 0xFF
   while (++i < byteLength && (mul *= 0x100)) {
     this[offset + i] = (value / mul) & 0xFF
@@ -8069,12 +8069,12 @@ Buffer.prototype.writeUIntBE = function writeUIntBE (value, offset, byteLength, 
   offset = offset | 0
   byteLength = byteLength | 0
   if (!noAssert) {
-    var maxBytes = Math.pow(2, 8 * byteLength) - 1
+    const maxBytes = Math.pow(2, 8 * byteLength) - 1
     checkInt(this, value, offset, byteLength, maxBytes, 0)
   }
 
-  var i = byteLength - 1
-  var mul = 1
+  let i = byteLength - 1
+  let mul = 1
   this[offset + i] = value & 0xFF
   while (--i >= 0 && (mul *= 0x100)) {
     this[offset + i] = (value / mul) & 0xFF
@@ -8094,7 +8094,7 @@ Buffer.prototype.writeUInt8 = function writeUInt8 (value, offset, noAssert) {
 
 function objectWriteUInt16 (buf, value, offset, littleEndian) {
   if (value < 0) value = 0xffff + value + 1
-  for (var i = 0, j = Math.min(buf.length - offset, 2); i < j; i++) {
+  for (let i = 0, j = Math.min(buf.length - offset, 2); i < j; i++) {
     buf[offset + i] = (value & (0xff << (8 * (littleEndian ? i : 1 - i)))) >>>
       (littleEndian ? i : 1 - i) * 8
   }
@@ -8128,7 +8128,7 @@ Buffer.prototype.writeUInt16BE = function writeUInt16BE (value, offset, noAssert
 
 function objectWriteUInt32 (buf, value, offset, littleEndian) {
   if (value < 0) value = 0xffffffff + value + 1
-  for (var i = 0, j = Math.min(buf.length - offset, 4); i < j; i++) {
+  for (let i = 0, j = Math.min(buf.length - offset, 4); i < j; i++) {
     buf[offset + i] = (value >>> (littleEndian ? i : 3 - i) * 8) & 0xff
   }
 }
@@ -8167,14 +8167,14 @@ Buffer.prototype.writeIntLE = function writeIntLE (value, offset, byteLength, no
   value = +value
   offset = offset | 0
   if (!noAssert) {
-    var limit = Math.pow(2, 8 * byteLength - 1)
+    const limit = Math.pow(2, 8 * byteLength - 1)
 
     checkInt(this, value, offset, byteLength, limit - 1, -limit)
   }
 
-  var i = 0
-  var mul = 1
-  var sub = 0
+  let i = 0
+  let mul = 1
+  let sub = 0
   this[offset] = value & 0xFF
   while (++i < byteLength && (mul *= 0x100)) {
     if (value < 0 && sub === 0 && this[offset + i - 1] !== 0) {
@@ -8190,14 +8190,14 @@ Buffer.prototype.writeIntBE = function writeIntBE (value, offset, byteLength, no
   value = +value
   offset = offset | 0
   if (!noAssert) {
-    var limit = Math.pow(2, 8 * byteLength - 1)
+    const limit = Math.pow(2, 8 * byteLength - 1)
 
     checkInt(this, value, offset, byteLength, limit - 1, -limit)
   }
 
-  var i = byteLength - 1
-  var mul = 1
-  var sub = 0
+  let i = byteLength - 1
+  let mul = 1
+  let sub = 0
   this[offset + i] = value & 0xFF
   while (--i >= 0 && (mul *= 0x100)) {
     if (value < 0 && sub === 0 && this[offset + i + 1] !== 0) {
@@ -8338,8 +8338,8 @@ Buffer.prototype.copy = function copy (target, targetStart, start, end) {
     end = target.length - targetStart + start
   }
 
-  var len = end - start
-  var i
+  const len = end - start
+  let i
 
   if (this === target && start < targetStart && targetStart < end) {
     // descending copy from end
@@ -8378,7 +8378,7 @@ Buffer.prototype.fill = function fill (val, start, end, encoding) {
       end = this.length
     }
     if (val.length === 1) {
-      var code = val.charCodeAt(0)
+      const code = val.charCodeAt(0)
       if (code < 256) {
         val = code
       }
@@ -8407,16 +8407,16 @@ Buffer.prototype.fill = function fill (val, start, end, encoding) {
 
   if (!val) val = 0
 
-  var i
+  let i
   if (typeof val === 'number') {
     for (i = start; i < end; i++) {
       this[i] = val
     }
   } else {
-    var bytes = Buffer.isBuffer(val)
+    const bytes = Buffer.isBuffer(val)
       ? val
       : utf8ToBytes(new Buffer(val, encoding).toString())
-    var len = bytes.length
+    const len = bytes.length
     for (i = 0; i < end - start; i++) {
       this[i + start] = bytes[i % len]
     }
@@ -8428,7 +8428,7 @@ Buffer.prototype.fill = function fill (val, start, end, encoding) {
 // HELPER FUNCTIONS
 // ================
 
-var INVALID_BASE64_RE = /[^+\/0-9A-Za-z-_]/g
+const INVALID_BASE64_RE = /[^+\/0-9A-Za-z-_]/g
 
 function base64clean (str) {
   // Node strips out invalid characters like \n and \t from the string, base64-js does not
@@ -8454,12 +8454,12 @@ function toHex (n) {
 
 function utf8ToBytes (string, units) {
   units = units || Infinity
-  var codePoint
-  var length = string.length
-  var leadSurrogate = null
-  var bytes = []
+  let codePoint
+  const length = string.length
+  let leadSurrogate = null
+  const bytes = []
 
-  for (var i = 0; i < length; i++) {
+  for (let i = 0; i < length; i++) {
     codePoint = string.charCodeAt(i)
 
     // is surrogate component
@@ -8533,8 +8533,8 @@ function utf8ToBytes (string, units) {
 }
 
 function asciiToBytes (str) {
-  var byteArray = []
-  for (var i = 0; i < str.length; i++) {
+  const byteArray = []
+  for (let i = 0; i < str.length; i++) {
     // Node's code seems to be doing this and not & 0x7F..
     byteArray.push(str.charCodeAt(i) & 0xFF)
   }
@@ -8542,9 +8542,9 @@ function asciiToBytes (str) {
 }
 
 function utf16leToBytes (str, units) {
-  var c, hi, lo
-  var byteArray = []
-  for (var i = 0; i < str.length; i++) {
+  let c, hi, lo
+  const byteArray = []
+  for (let i = 0; i < str.length; i++) {
     if ((units -= 2) < 0) break
 
     c = str.charCodeAt(i)
@@ -8562,7 +8562,7 @@ function base64ToBytes (str) {
 }
 
 function blitBuffer (src, dst, offset, length) {
-  for (var i = 0; i < length; i++) {
+  for (let i = 0; i < length; i++) {
     if ((i + offset >= dst.length) || (i >= src.length)) break
     dst[i + offset] = src[i]
   }
@@ -8575,7 +8575,7 @@ function isnan (val) {
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{"base64-js":40,"ieee754":52,"isarray":46}],46:[function(require,module,exports){
-var toString = {}.toString;
+const toString = {}.toString;
 
 module.exports = Array.isArray || function (arr) {
   return toString.call(arr) == '[object Array]';
@@ -8710,7 +8710,7 @@ function objectToString(o) {
  * http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.4.6927
  */
 (function(global, undefined) {
-  var objectPrototypeToString = Object.prototype.toString;
+  const objectPrototypeToString = Object.prototype.toString;
 
   /*istanbul ignore next*/
   function map(arr, mapper, that) {
@@ -8718,9 +8718,9 @@ function objectToString(o) {
       return Array.prototype.map.call(arr, mapper, that);
     }
 
-    var other = new Array(arr.length);
+    const other = new Array(arr.length);
 
-    for (var i = 0, n = arr.length; i < n; i++) {
+    for (let i = 0, n = arr.length; i < n; i++) {
       other[i] = mapper.call(that, arr[i], i, arr);
     }
     return other;
@@ -8729,8 +8729,8 @@ function objectToString(o) {
     return { newPos: path.newPos, components: path.components.slice(0) };
   }
   function removeEmpty(array) {
-    var ret = [];
-    for (var i = 0; i < array.length; i++) {
+    const ret = [];
+    for (let i = 0; i < array.length; i++) {
       if (array[i]) {
         ret.push(array[i]);
       }
@@ -8738,7 +8738,7 @@ function objectToString(o) {
     return ret;
   }
   function escapeHTML(s) {
-    var n = s;
+    let n = s;
     n = n.replace(/&/g, '&amp;');
     n = n.replace(/</g, '&lt;');
     n = n.replace(/>/g, '&gt;');
@@ -8753,7 +8753,7 @@ function objectToString(o) {
     stack = stack || [];
     replacementStack = replacementStack || [];
 
-    var i;
+    let i;
 
     for (i = 0; i < stack.length; i += 1) {
       if (stack[i] === obj) {
@@ -8761,7 +8761,7 @@ function objectToString(o) {
       }
     }
 
-    var canonicalizedObj;
+    let canonicalizedObj;
 
     if ('[object Array]' === objectPrototypeToString.call(obj)) {
       stack.push(obj);
@@ -8776,7 +8776,7 @@ function objectToString(o) {
       stack.push(obj);
       canonicalizedObj = {};
       replacementStack.push(canonicalizedObj);
-      var sortedKeys = [],
+      let sortedKeys = [],
           key;
       for (key in obj) {
         sortedKeys.push(key);
@@ -8795,18 +8795,18 @@ function objectToString(o) {
   }
 
   function buildValues(components, newString, oldString, useLongestToken) {
-    var componentPos = 0,
+    let componentPos = 0,
         componentLen = components.length,
         newPos = 0,
         oldPos = 0;
 
     for (; componentPos < componentLen; componentPos++) {
-      var component = components[componentPos];
+      const component = components[componentPos];
       if (!component.removed) {
         if (!component.added && useLongestToken) {
-          var value = newString.slice(newPos, newPos + component.count);
+          let value = newString.slice(newPos, newPos + component.count);
           value = map(value, function(value, i) {
-            var oldValue = oldString[oldPos + i];
+            const oldValue = oldString[oldPos + i];
             return oldValue.length > value.length ? oldValue : value;
           });
 
@@ -8828,7 +8828,7 @@ function objectToString(o) {
         // The diffing algorithm is tied to add then remove output and this is the simplest
         // route to get the desired output with minimal overhead.
         if (componentPos && components[componentPos - 1].added) {
-          var tmp = components[componentPos - 1];
+          const tmp = components[componentPos - 1];
           components[componentPos - 1] = components[componentPos];
           components[componentPos] = tmp;
         }
@@ -8843,7 +8843,7 @@ function objectToString(o) {
   }
   Diff.prototype = {
     diff: function(oldString, newString, callback) {
-      var self = this;
+      const self = this;
 
       function done(value) {
         if (callback) {
@@ -8868,13 +8868,13 @@ function objectToString(o) {
       newString = this.tokenize(newString);
       oldString = this.tokenize(oldString);
 
-      var newLen = newString.length, oldLen = oldString.length;
-      var editLength = 1;
-      var maxEditLength = newLen + oldLen;
-      var bestPath = [{ newPos: -1, components: [] }];
+      const newLen = newString.length, oldLen = oldString.length;
+      let editLength = 1;
+      const maxEditLength = newLen + oldLen;
+      const bestPath = [{ newPos: -1, components: [] }];
 
       // Seed editLength = 0, i.e. the content starts with the same values
-      var oldPos = this.extractCommon(bestPath[0], newString, oldString, 0);
+      const oldPos = this.extractCommon(bestPath[0], newString, oldString, 0);
       if (bestPath[0].newPos + 1 >= newLen && oldPos + 1 >= oldLen) {
         // Identity per the equality and tokenizer
         return done([{value: newString.join('')}]);
@@ -8882,9 +8882,9 @@ function objectToString(o) {
 
       // Main worker method. checks all permutations of a given edit length for acceptance.
       function execEditLength() {
-        for (var diagonalPath = -1 * editLength; diagonalPath <= editLength; diagonalPath += 2) {
-          var basePath;
-          var addPath = bestPath[diagonalPath - 1],
+        for (let diagonalPath = -1 * editLength; diagonalPath <= editLength; diagonalPath += 2) {
+          let basePath;
+          let addPath = bestPath[diagonalPath - 1],
               removePath = bestPath[diagonalPath + 1],
               oldPos = (removePath ? removePath.newPos : 0) - diagonalPath;
           if (addPath) {
@@ -8892,7 +8892,7 @@ function objectToString(o) {
             bestPath[diagonalPath - 1] = undefined;
           }
 
-          var canAdd = addPath && addPath.newPos + 1 < newLen,
+          const canAdd = addPath && addPath.newPos + 1 < newLen,
               canRemove = removePath && 0 <= oldPos && oldPos < oldLen;
           if (!canAdd && !canRemove) {
             // If this path is a terminal then prune
@@ -8945,7 +8945,7 @@ function objectToString(o) {
         }());
       } else {
         while (editLength <= maxEditLength) {
-          var ret = execEditLength();
+          const ret = execEditLength();
           if (ret) {
             return ret;
           }
@@ -8954,7 +8954,7 @@ function objectToString(o) {
     },
 
     pushComponent: function(components, added, removed) {
-      var last = components[components.length - 1];
+      const last = components[components.length - 1];
       if (last && last.added === added && last.removed === removed) {
         // We need to clone here as the component clone operation is just
         // as shallow array clone
@@ -8964,7 +8964,7 @@ function objectToString(o) {
       }
     },
     extractCommon: function(basePath, newString, oldString, diagonalPath) {
-      var newLen = newString.length,
+      let newLen = newString.length,
           oldLen = oldString.length,
           newPos = basePath.newPos,
           oldPos = newPos - diagonalPath,
@@ -8985,7 +8985,7 @@ function objectToString(o) {
     },
 
     equals: function(left, right) {
-      var reWhitespace = /\S/;
+      const reWhitespace = /\S/;
       return left === right || (this.ignoreWhitespace && !reWhitespace.test(left) && !reWhitespace.test(right));
     },
     tokenize: function(value) {
@@ -8993,29 +8993,29 @@ function objectToString(o) {
     }
   };
 
-  var CharDiff = new Diff();
+  const CharDiff = new Diff();
 
-  var WordDiff = new Diff(true);
-  var WordWithSpaceDiff = new Diff();
+  const WordDiff = new Diff(true);
+  const WordWithSpaceDiff = new Diff();
   WordDiff.tokenize = WordWithSpaceDiff.tokenize = function(value) {
     return removeEmpty(value.split(/(\s+|\b)/));
   };
 
-  var CssDiff = new Diff(true);
+  const CssDiff = new Diff(true);
   CssDiff.tokenize = function(value) {
     return removeEmpty(value.split(/([{}:;,]|\s+)/));
   };
 
-  var LineDiff = new Diff();
+  const LineDiff = new Diff();
 
-  var TrimmedLineDiff = new Diff();
+  const TrimmedLineDiff = new Diff();
   TrimmedLineDiff.ignoreTrim = true;
 
   LineDiff.tokenize = TrimmedLineDiff.tokenize = function(value) {
-    var retLines = [],
+    const retLines = [],
         lines = value.split(/^/m);
-    for (var i = 0; i < lines.length; i++) {
-      var line = lines[i],
+    for (let i = 0; i < lines.length; i++) {
+      let line = lines[i],
           lastLine = lines[i - 1],
           lastLineLastChar = lastLine && lastLine[lastLine.length - 1];
 
@@ -9037,9 +9037,9 @@ function objectToString(o) {
     return retLines;
   };
 
-  var PatchDiff = new Diff();
+  const PatchDiff = new Diff();
   PatchDiff.tokenize = function(value) {
-    var ret = [],
+    const ret = [],
         linesAndNewlines = value.split(/(\n|\r\n)/);
 
     // Ignore the final empty token that occurs if the string ends with a new line
@@ -9048,8 +9048,8 @@ function objectToString(o) {
     }
 
     // Merge the content and line separators into single tokens
-    for (var i = 0; i < linesAndNewlines.length; i++) {
-      var line = linesAndNewlines[i];
+    for (let i = 0; i < linesAndNewlines.length; i++) {
+      const line = linesAndNewlines[i];
 
       if (i % 2) {
         ret[ret.length - 1] += line;
@@ -9060,12 +9060,12 @@ function objectToString(o) {
     return ret;
   };
 
-  var SentenceDiff = new Diff();
+  const SentenceDiff = new Diff();
   SentenceDiff.tokenize = function(value) {
     return removeEmpty(value.split(/(\S.+?[.!?])(?=\s+|$)/));
   };
 
-  var JsonDiff = new Diff();
+  const JsonDiff = new Diff();
   // Discriminate between two lines of pretty-printed, serialized JSON where one of them has a
   // dangling comma and the other doesn't. Turns out including the dangling comma yields the nicest output:
   JsonDiff.useLongestToken = true;
@@ -9074,7 +9074,7 @@ function objectToString(o) {
     return LineDiff.equals(left.replace(/,([\r\n])/g, '$1'), right.replace(/,([\r\n])/g, '$1'));
   };
 
-  var JsDiff = {
+  let JsDiff = {
     Diff: Diff,
 
     diffChars: function(oldStr, newStr, callback) { return CharDiff.diff(oldStr, newStr, callback); },
@@ -9095,7 +9095,7 @@ function objectToString(o) {
     },
 
     createTwoFilesPatch: function(oldFileName, newFileName, oldStr, newStr, oldHeader, newHeader) {
-      var ret = [];
+      const ret = [];
 
       if (oldFileName == newFileName) {
         ret.push('Index: ' + oldFileName);
@@ -9104,7 +9104,7 @@ function objectToString(o) {
       ret.push('--- ' + oldFileName + (typeof oldHeader === 'undefined' ? '' : '\t' + oldHeader));
       ret.push('+++ ' + newFileName + (typeof newHeader === 'undefined' ? '' : '\t' + newHeader));
 
-      var diff = PatchDiff.diff(oldStr, newStr);
+      const diff = PatchDiff.diff(oldStr, newStr);
       diff.push({value: '', lines: []});   // Append an empty value to make cleanup easier
 
       // Formats a given set of lines for printing as context lines in a patch
@@ -9114,7 +9114,7 @@ function objectToString(o) {
 
       // Outputs the no newline at end of file warning if needed
       function eofNL(curRange, i, current) {
-        var last = diff[diff.length - 2],
+        const last = diff[diff.length - 2],
             isLast = i === diff.length - 2,
             isLastOfType = i === diff.length - 3 && current.added !== last.added;
 
@@ -9124,17 +9124,17 @@ function objectToString(o) {
         }
       }
 
-      var oldRangeStart = 0, newRangeStart = 0, curRange = [],
+      let oldRangeStart = 0, newRangeStart = 0, curRange = [],
           oldLine = 1, newLine = 1;
-      for (var i = 0; i < diff.length; i++) {
-        var current = diff[i],
+      for (let i = 0; i < diff.length; i++) {
+        let current = diff[i],
             lines = current.lines || current.value.replace(/\n$/, '').split('\n');
         current.lines = lines;
 
         if (current.added || current.removed) {
           // If we have previous context, start with that
           if (!oldRangeStart) {
-            var prev = diff[i - 1];
+            const prev = diff[i - 1];
             oldRangeStart = oldLine;
             newRangeStart = newLine;
 
@@ -9166,7 +9166,7 @@ function objectToString(o) {
               curRange.push.apply(curRange, contextLines(lines));
             } else {
               // end the range and output
-              var contextSize = Math.min(lines.length, 4);
+              const contextSize = Math.min(lines.length, 4);
               ret.push(
                   '@@ -' + oldRangeStart + ',' + (oldLine - oldRangeStart + contextSize)
                   + ' +' + newRangeStart + ',' + (newLine - newRangeStart + contextSize)
@@ -9195,7 +9195,7 @@ function objectToString(o) {
     },
 
     applyPatch: function(oldStr, uniDiff) {
-      var diffstr = uniDiff.split('\n'),
+      let diffstr = uniDiff.split('\n'),
           hunks = [],
           i = 0,
           remEOFNL = false,
@@ -9209,7 +9209,7 @@ function objectToString(o) {
       // Parse the unified diff
       for (; i < diffstr.length; i++) {
         if (diffstr[i][0] === '@') {
-          var chnukHeader = diffstr[i].split(/@@ -(\d+),(\d+) \+(\d+),(\d+) @@/);
+          const chnukHeader = diffstr[i].split(/@@ -(\d+),(\d+) \+(\d+),(\d+) @@/);
           hunks.unshift({
             start: chnukHeader[3],
             oldlength: +chnukHeader[2],
@@ -9234,11 +9234,11 @@ function objectToString(o) {
       }
 
       // Apply the diff to the input
-      var lines = oldStr.split('\n');
+      const lines = oldStr.split('\n');
       for (i = hunks.length - 1; i >= 0; i--) {
-        var hunk = hunks[i];
+        const hunk = hunks[i];
         // Sanity check the input string. Bail if we don't match.
-        for (var j = 0; j < hunk.oldlength; j++) {
+        for (let j = 0; j < hunk.oldlength; j++) {
           if (lines[hunk.start - 1 + j] !== hunk.removed[j]) {
             return false;
           }
@@ -9258,9 +9258,9 @@ function objectToString(o) {
     },
 
     convertChangesToXML: function(changes) {
-      var ret = [];
-      for (var i = 0; i < changes.length; i++) {
-        var change = changes[i];
+      const ret = [];
+      for (let i = 0; i < changes.length; i++) {
+        const change = changes[i];
         if (change.added) {
           ret.push('<ins>');
         } else if (change.removed) {
@@ -9280,10 +9280,10 @@ function objectToString(o) {
 
     // See: http://code.google.com/p/google-diff-match-patch/wiki/API
     convertChangesToDMP: function(changes) {
-      var ret = [],
+      let ret = [],
           change,
           operation;
-      for (var i = 0; i < changes.length; i++) {
+      for (let i = 0; i < changes.length; i++) {
         change = changes[i];
         if (change.added) {
           operation = 1;
@@ -9316,7 +9316,7 @@ function objectToString(o) {
 },{}],49:[function(require,module,exports){
 'use strict';
 
-var matchOperatorsRe = /[|\\{}()[\]^$+*?.]/g;
+const matchOperatorsRe = /[|\\{}()[\]^$+*?.]/g;
 
 module.exports = function (str) {
 	if (typeof str !== 'string') {
@@ -9374,7 +9374,7 @@ EventEmitter.prototype.setMaxListeners = function(n) {
 };
 
 EventEmitter.prototype.emit = function(type) {
-  var er, handler, len, args, i, listeners;
+  let er, handler, len, args, i, listeners;
 
   if (!this._events)
     this._events = {};
@@ -9425,7 +9425,7 @@ EventEmitter.prototype.emit = function(type) {
 };
 
 EventEmitter.prototype.addListener = function(type, listener) {
-  var m;
+  let m;
 
   if (!isFunction(listener))
     throw TypeError('listener must be a function');
@@ -9480,7 +9480,7 @@ EventEmitter.prototype.once = function(type, listener) {
   if (!isFunction(listener))
     throw TypeError('listener must be a function');
 
-  var fired = false;
+  let fired = false;
 
   function g() {
     this.removeListener(type, g);
@@ -9499,7 +9499,7 @@ EventEmitter.prototype.once = function(type, listener) {
 
 // emits a 'removeListener' event iff the listener was removed
 EventEmitter.prototype.removeListener = function(type, listener) {
-  var list, position, length, i;
+  let list, position, length, i;
 
   if (!isFunction(listener))
     throw TypeError('listener must be a function');
@@ -9544,7 +9544,7 @@ EventEmitter.prototype.removeListener = function(type, listener) {
 };
 
 EventEmitter.prototype.removeAllListeners = function(type) {
-  var key, listeners;
+  let key, listeners;
 
   if (!this._events)
     return this;
@@ -9584,7 +9584,7 @@ EventEmitter.prototype.removeAllListeners = function(type) {
 };
 
 EventEmitter.prototype.listeners = function(type) {
-  var ret;
+  let ret;
   if (!this._events || !this._events[type])
     ret = [];
   else if (isFunction(this._events[type]))
@@ -9596,7 +9596,7 @@ EventEmitter.prototype.listeners = function(type) {
 
 EventEmitter.prototype.listenerCount = function(type) {
   if (this._events) {
-    var evlistener = this._events[type];
+    const evlistener = this._events[type];
 
     if (isFunction(evlistener))
       return 1;
@@ -9634,7 +9634,7 @@ function isUndefined(arg) {
  * Module dependencies.
  */
 
-var exec = require('child_process').exec
+let exec = require('child_process').exec
   , fs = require('fs')
   , path = require('path')
   , exists = fs.existsSync || path.existsSync
@@ -9643,10 +9643,10 @@ var exec = require('child_process').exec
   , cmd;
 
 function which(name) {
-  var paths = process.env.PATH.split(':');
-  var loc;
+  const paths = process.env.PATH.split(':');
+  let loc;
 
-  for (var i = 0, len = paths.length; i < len; ++i) {
+  for (let i = 0, len = paths.length; i < len; ++i) {
     loc = path.join(paths[i], name);
     if (exists(loc)) return loc;
   }
@@ -9792,7 +9792,7 @@ exports.version = '1.4.1'
  */
 
 function growl(msg, options, fn) {
-  var image
+  let image
     , args
     , options = options || {}
     , fn = fn || function(){};
@@ -9813,7 +9813,7 @@ function growl(msg, options, fn) {
   if (image = options.image) {
     switch(cmd.type) {
       case 'Darwin-Growl':
-        var flag, ext = path.extname(image).substr(1)
+        let flag, ext = path.extname(image).substr(1)
         flag = flag || ext == 'icns' && 'iconpath'
         flag = flag || /^[A-Z]/.test(image) && 'appIcon'
         flag = flag || /^png|gif|jpe?g$/.test(ext) && 'image'
@@ -9840,8 +9840,8 @@ function growl(msg, options, fn) {
 
   // priority
   if (options.priority) {
-    var priority = options.priority + '';
-    var checkindexOf = cmd.priority.range.indexOf(priority);
+    const priority = options.priority + '';
+    const checkindexOf = cmd.priority.range.indexOf(priority);
     if (~cmd.priority.range.indexOf(priority)) {
       args.push(cmd.priority, options.priority);
     }
@@ -9865,8 +9865,8 @@ function growl(msg, options, fn) {
       break;
     case 'Darwin-NotificationCenter':
       args.push(cmd.msg);
-      var stringifiedMsg = quote(msg);
-      var escapedMsg = stringifiedMsg.replace(/\\n/g, '\n');
+      let stringifiedMsg = quote(msg);
+      let escapedMsg = stringifiedMsg.replace(/\\n/g, '\n');
       args.push(escapedMsg);
       if (options.title) {
         args.push(cmd.title);
@@ -9905,10 +9905,10 @@ function growl(msg, options, fn) {
       break;
     case 'Custom':
       args[0] = (function(origCommand) {
-        var message = options.title
+        const message = options.title
           ? options.title + ': ' + msg
           : msg;
-        var command = origCommand.replace(/(^|[^%])%s/g, '$1' + quote(message));
+        const command = origCommand.replace(/(^|[^%])%s/g, '$1' + quote(message));
         if (command === origCommand) args.push(quote(message));
         return command;
       })(args[0]);
@@ -9922,14 +9922,14 @@ function growl(msg, options, fn) {
 }).call(this,require('_process'))
 },{"_process":58,"child_process":43,"fs":43,"os":56,"path":43}],52:[function(require,module,exports){
 exports.read = function (buffer, offset, isLE, mLen, nBytes) {
-  var e, m
-  var eLen = nBytes * 8 - mLen - 1
-  var eMax = (1 << eLen) - 1
-  var eBias = eMax >> 1
-  var nBits = -7
-  var i = isLE ? (nBytes - 1) : 0
-  var d = isLE ? -1 : 1
-  var s = buffer[offset + i]
+  let e, m
+  const eLen = nBytes * 8 - mLen - 1
+  const eMax = (1 << eLen) - 1
+  const eBias = eMax >> 1
+  let nBits = -7
+  let i = isLE ? (nBytes - 1) : 0
+  const d = isLE ? -1 : 1
+  let s = buffer[offset + i]
 
   i += d
 
@@ -9955,14 +9955,14 @@ exports.read = function (buffer, offset, isLE, mLen, nBytes) {
 }
 
 exports.write = function (buffer, value, offset, isLE, mLen, nBytes) {
-  var e, m, c
-  var eLen = nBytes * 8 - mLen - 1
-  var eMax = (1 << eLen) - 1
-  var eBias = eMax >> 1
-  var rt = (mLen === 23 ? Math.pow(2, -24) - Math.pow(2, -77) : 0)
-  var i = isLE ? 0 : (nBytes - 1)
-  var d = isLE ? 1 : -1
-  var s = value < 0 || (value === 0 && 1 / value < 0) ? 1 : 0
+  let e, m, c
+  let eLen = nBytes * 8 - mLen - 1
+  const eMax = (1 << eLen) - 1
+  const eBias = eMax >> 1
+  const rt = (mLen === 23 ? Math.pow(2, -24) - Math.pow(2, -77) : 0)
+  let i = isLE ? 0 : (nBytes - 1)
+  const d = isLE ? 1 : -1
+  const s = value < 0 || (value === 0 && 1 / value < 0) ? 1 : 0
 
   value = Math.abs(value)
 
@@ -10024,7 +10024,7 @@ if (typeof Object.create === 'function') {
   // old school shim for old browsers
   module.exports = function inherits(ctor, superCtor) {
     ctor.super_ = superCtor
-    var TempCtor = function () {}
+    const TempCtor = function () {}
     TempCtor.prototype = superCtor.prototype
     ctor.prototype = new TempCtor()
     ctor.prototype.constructor = ctor
@@ -10052,9 +10052,9 @@ module.exports = function (obj) {
 
 },{}],55:[function(require,module,exports){
 (function (process){
-var path = require('path');
-var fs = require('fs');
-var _0777 = parseInt('0777', 8);
+const path = require('path');
+const fs = require('fs');
+const _0777 = Number.parseInt('0777', 8);
 
 module.exports = mkdirP.mkdirp = mkdirP.mkdirP = mkdirP;
 
@@ -10067,15 +10067,15 @@ function mkdirP (p, opts, f, made) {
         opts = { mode: opts };
     }
     
-    var mode = opts.mode;
-    var xfs = opts.fs || fs;
+    let mode = opts.mode;
+    const xfs = opts.fs || fs;
     
     if (mode === undefined) {
         mode = _0777 & (~process.umask());
     }
     if (!made) made = null;
     
-    var cb = f || function () {};
+    const cb = f || function () {};
     p = path.resolve(p);
     
     xfs.mkdir(p, mode, function (er) {
@@ -10111,8 +10111,8 @@ mkdirP.sync = function sync (p, opts, made) {
         opts = { mode: opts };
     }
     
-    var mode = opts.mode;
-    var xfs = opts.fs || fs;
+    let mode = opts.mode;
+    const xfs = opts.fs || fs;
     
     if (mode === undefined) {
         mode = _0777 & (~process.umask());
@@ -10136,7 +10136,7 @@ mkdirP.sync = function sync (p, opts, made) {
             // there already.  If so, then hooray!  If not, then something
             // is borked.
             default:
-                var stat;
+                let stat;
                 try {
                     stat = xfs.statSync(p);
                 }
@@ -10215,8 +10215,8 @@ function nextTick(fn, arg1, arg2, arg3) {
   if (typeof fn !== 'function') {
     throw new TypeError('"callback" argument must be a function');
   }
-  var len = arguments.length;
-  var args, i;
+  const len = arguments.length;
+  let args, i;
   switch (len) {
   case 0:
   case 1:
@@ -10249,11 +10249,11 @@ function nextTick(fn, arg1, arg2, arg3) {
 },{"_process":58}],58:[function(require,module,exports){
 // shim for using process in browser
 
-var process = module.exports = {};
-var queue = [];
-var draining = false;
-var currentQueue;
-var queueIndex = -1;
+const process = module.exports = {};
+let queue = [];
+let draining = false;
+let currentQueue;
+let queueIndex = -1;
 
 function cleanUpNextTick() {
     if (!draining || !currentQueue) {
@@ -10274,10 +10274,10 @@ function drainQueue() {
     if (draining) {
         return;
     }
-    var timeout = setTimeout(cleanUpNextTick);
+    const timeout = setTimeout(cleanUpNextTick);
     draining = true;
 
-    var len = queue.length;
+    let len = queue.length;
     while(len) {
         currentQueue = queue;
         queue = [];
@@ -10295,9 +10295,9 @@ function drainQueue() {
 }
 
 process.nextTick = function (fun) {
-    var args = new Array(arguments.length - 1);
+    const args = new Array(arguments.length - 1);
     if (arguments.length > 1) {
-        for (var i = 1; i < arguments.length; i++) {
+        for (let i = 1; i < arguments.length; i++) {
             args[i - 1] = arguments[i];
         }
     }
@@ -10366,8 +10366,8 @@ process.umask = function() { return 0; };
 
 module.exports = Stream;
 
-var EE = require('events').EventEmitter;
-var inherits = require('inherits');
+const EE = require('events').EventEmitter;
+const inherits = require('inherits');
 
 inherits(Stream, EE);
 Stream.Readable = require('readable-stream/readable.js');
@@ -10389,7 +10389,7 @@ function Stream() {
 }
 
 Stream.prototype.pipe = function(dest, options) {
-  var source = this;
+  const source = this;
 
   function ondata(chunk) {
     if (dest.writable) {
@@ -10416,7 +10416,7 @@ Stream.prototype.pipe = function(dest, options) {
     source.on('close', onclose);
   }
 
-  var didOnEnd = false;
+  let didOnEnd = false;
   function onend() {
     if (didOnEnd) return;
     didOnEnd = true;
@@ -10486,9 +10486,9 @@ module.exports = require("./lib/_stream_duplex.js")
 
 /*<replacement>*/
 
-var objectKeys = Object.keys || function (obj) {
-  var keys = [];
-  for (var key in obj) {
+const objectKeys = Object.keys || function (obj) {
+  const keys = [];
+  for (const key in obj) {
     keys.push(key);
   }return keys;
 };
@@ -10497,22 +10497,22 @@ var objectKeys = Object.keys || function (obj) {
 module.exports = Duplex;
 
 /*<replacement>*/
-var processNextTick = require('process-nextick-args');
+const processNextTick = require('process-nextick-args');
 /*</replacement>*/
 
 /*<replacement>*/
-var util = require('core-util-is');
+const util = require('core-util-is');
 util.inherits = require('inherits');
 /*</replacement>*/
 
-var Readable = require('./_stream_readable');
-var Writable = require('./_stream_writable');
+const Readable = require('./_stream_readable');
+const Writable = require('./_stream_writable');
 
 util.inherits(Duplex, Readable);
 
-var keys = objectKeys(Writable.prototype);
-for (var v = 0; v < keys.length; v++) {
-  var method = keys[v];
+const keys = objectKeys(Writable.prototype);
+for (let v = 0; v < keys.length; v++) {
+  const method = keys[v];
   if (!Duplex.prototype[method]) Duplex.prototype[method] = Writable.prototype[method];
 }
 
@@ -10548,7 +10548,7 @@ function onEndNT(self) {
 }
 
 function forEach(xs, f) {
-  for (var i = 0, l = xs.length; i < l; i++) {
+  for (let i = 0, l = xs.length; i < l; i++) {
     f(xs[i], i);
   }
 }
@@ -10561,10 +10561,10 @@ function forEach(xs, f) {
 
 module.exports = PassThrough;
 
-var Transform = require('./_stream_transform');
+const Transform = require('./_stream_transform');
 
 /*<replacement>*/
-var util = require('core-util-is');
+const util = require('core-util-is');
 util.inherits = require('inherits');
 /*</replacement>*/
 
@@ -10586,25 +10586,25 @@ PassThrough.prototype._transform = function (chunk, encoding, cb) {
 module.exports = Readable;
 
 /*<replacement>*/
-var processNextTick = require('process-nextick-args');
+const processNextTick = require('process-nextick-args');
 /*</replacement>*/
 
 /*<replacement>*/
-var isArray = require('isarray');
+const isArray = require('isarray');
 /*</replacement>*/
 
 Readable.ReadableState = ReadableState;
 
 /*<replacement>*/
-var EE = require('events').EventEmitter;
+const EE = require('events').EventEmitter;
 
-var EElistenerCount = function (emitter, type) {
+const EElistenerCount = function (emitter, type) {
   return emitter.listeners(type).length;
 };
 /*</replacement>*/
 
 /*<replacement>*/
-var Stream;
+let Stream;
 (function () {
   try {
     Stream = require('st' + 'ream');
@@ -10614,19 +10614,19 @@ var Stream;
 })();
 /*</replacement>*/
 
-var Buffer = require('buffer').Buffer;
+const Buffer = require('buffer').Buffer;
 /*<replacement>*/
-var bufferShim = require('buffer-shims');
+const bufferShim = require('buffer-shims');
 /*</replacement>*/
 
 /*<replacement>*/
-var util = require('core-util-is');
+const util = require('core-util-is');
 util.inherits = require('inherits');
 /*</replacement>*/
 
 /*<replacement>*/
-var debugUtil = require('util');
-var debug = void 0;
+const debugUtil = require('util');
+let debug = void 0;
 if (debugUtil && debugUtil.debuglog) {
   debug = debugUtil.debuglog('stream');
 } else {
@@ -10634,11 +10634,11 @@ if (debugUtil && debugUtil.debuglog) {
 }
 /*</replacement>*/
 
-var StringDecoder;
+let StringDecoder;
 
 util.inherits(Readable, Stream);
 
-var hasPrependListener = typeof EE.prototype.prependListener === 'function';
+const hasPrependListener = typeof EE.prototype.prependListener === 'function';
 
 function prependListener(emitter, event, fn) {
   if (hasPrependListener) return emitter.prependListener(event, fn);
@@ -10665,8 +10665,8 @@ function ReadableState(options, stream) {
 
   // the point at which it stops calling _read() to fill the buffer
   // Note: 0 is a valid value, means "don't call _read preemptively ever"
-  var hwm = options.highWaterMark;
-  var defaultHwm = this.objectMode ? 16 : 16 * 1024;
+  const hwm = options.highWaterMark;
+  const defaultHwm = this.objectMode ? 16 : 16 * 1024;
   this.highWaterMark = hwm || hwm === 0 ? hwm : defaultHwm;
 
   // cast to ints.
@@ -10739,7 +10739,7 @@ function Readable(options) {
 // similar to how Writable.write() returns true if you should
 // write() some more.
 Readable.prototype.push = function (chunk, encoding) {
-  var state = this._readableState;
+  const state = this._readableState;
 
   if (!state.objectMode && typeof chunk === 'string') {
     encoding = encoding || state.defaultEncoding;
@@ -10754,7 +10754,7 @@ Readable.prototype.push = function (chunk, encoding) {
 
 // Unshift should *always* be something directly out of read()
 Readable.prototype.unshift = function (chunk) {
-  var state = this._readableState;
+  const state = this._readableState;
   return readableAddChunk(this, state, chunk, '', true);
 };
 
@@ -10763,7 +10763,7 @@ Readable.prototype.isPaused = function () {
 };
 
 function readableAddChunk(stream, state, chunk, encoding, addToFront) {
-  var er = chunkInvalid(state, chunk);
+  const er = chunkInvalid(state, chunk);
   if (er) {
     stream.emit('error', er);
   } else if (chunk === null) {
@@ -10771,13 +10771,13 @@ function readableAddChunk(stream, state, chunk, encoding, addToFront) {
     onEofChunk(stream, state);
   } else if (state.objectMode || chunk && chunk.length > 0) {
     if (state.ended && !addToFront) {
-      var e = new Error('stream.push() after EOF');
+      const e = new Error('stream.push() after EOF');
       stream.emit('error', e);
     } else if (state.endEmitted && addToFront) {
-      var _e = new Error('stream.unshift() after end event');
+      const _e = new Error('stream.unshift() after end event');
       stream.emit('error', _e);
     } else {
-      var skipAdd;
+      let skipAdd;
       if (state.decoder && !addToFront && !encoding) {
         chunk = state.decoder.write(chunk);
         skipAdd = !state.objectMode && chunk.length === 0;
@@ -10830,7 +10830,7 @@ Readable.prototype.setEncoding = function (enc) {
 };
 
 // Don't raise the hwm > 8MB
-var MAX_HWM = 0x800000;
+const MAX_HWM = 0x800000;
 function computeNewHighWaterMark(n) {
   if (n >= MAX_HWM) {
     n = MAX_HWM;
@@ -10881,8 +10881,8 @@ function howMuchToRead(n, state) {
 // you can override either this method, or the async _read(n) below.
 Readable.prototype.read = function (n) {
   debug('read', n);
-  var state = this._readableState;
-  var nOrig = n;
+  const state = this._readableState;
+  const nOrig = n;
 
   if (typeof n !== 'number' || n > 0) state.emittedReadable = false;
 
@@ -10926,7 +10926,7 @@ Readable.prototype.read = function (n) {
   // 3. Actually pull the requested chunks out of the buffer and return.
 
   // if we need a readable event, then we need to do some reading.
-  var doRead = state.needReadable;
+  let doRead = state.needReadable;
   debug('need readable', doRead);
 
   // if we currently have less than the highWaterMark, then also read some
@@ -10957,7 +10957,7 @@ Readable.prototype.read = function (n) {
   // and we need to re-evaluate how much data we can return to the user.
   if (doRead && !state.reading) n = howMuchToRead(nOrig, state);
 
-  var ret;
+  let ret;
   if (n > 0) ret = fromList(n, state);else ret = null;
 
   if (ret === null) {
@@ -10980,7 +10980,7 @@ Readable.prototype.read = function (n) {
 };
 
 function chunkInvalid(state, chunk) {
-  var er = null;
+  let er = null;
   if (!Buffer.isBuffer(chunk) && typeof chunk !== 'string' && chunk !== null && chunk !== undefined && !state.objectMode) {
     er = new TypeError('Invalid non-string/buffer chunk');
   }
@@ -10990,7 +10990,7 @@ function chunkInvalid(state, chunk) {
 function onEofChunk(stream, state) {
   if (state.ended) return;
   if (state.decoder) {
-    var chunk = state.decoder.end();
+    const chunk = state.decoder.end();
     if (chunk && chunk.length) {
       state.buffer.push(chunk);
       state.length += state.objectMode ? 1 : chunk.length;
@@ -11006,7 +11006,7 @@ function onEofChunk(stream, state) {
 // another read() call => stack overflow.  This way, it might trigger
 // a nextTick recursion warning, but that's not so bad.
 function emitReadable(stream) {
-  var state = stream._readableState;
+  const state = stream._readableState;
   state.needReadable = false;
   if (!state.emittedReadable) {
     debug('emitReadable', state.flowing);
@@ -11035,7 +11035,7 @@ function maybeReadMore(stream, state) {
 }
 
 function maybeReadMore_(stream, state) {
-  var len = state.length;
+  let len = state.length;
   while (!state.reading && !state.flowing && !state.ended && state.length < state.highWaterMark) {
     debug('maybeReadMore read 0');
     stream.read(0);
@@ -11055,8 +11055,8 @@ Readable.prototype._read = function (n) {
 };
 
 Readable.prototype.pipe = function (dest, pipeOpts) {
-  var src = this;
-  var state = this._readableState;
+  const src = this;
+  const state = this._readableState;
 
   switch (state.pipesCount) {
     case 0:
@@ -11072,9 +11072,9 @@ Readable.prototype.pipe = function (dest, pipeOpts) {
   state.pipesCount += 1;
   debug('pipe count=%d opts=%j', state.pipesCount, pipeOpts);
 
-  var doEnd = (!pipeOpts || pipeOpts.end !== false) && dest !== process.stdout && dest !== process.stderr;
+  const doEnd = (!pipeOpts || pipeOpts.end !== false) && dest !== process.stdout && dest !== process.stderr;
 
-  var endFn = doEnd ? onend : cleanup;
+  const endFn = doEnd ? onend : cleanup;
   if (state.endEmitted) processNextTick(endFn);else src.once('end', endFn);
 
   dest.on('unpipe', onunpipe);
@@ -11094,10 +11094,10 @@ Readable.prototype.pipe = function (dest, pipeOpts) {
   // on the source.  This would be more elegant with a .once()
   // handler in flow(), but adding and removing repeatedly is
   // too slow.
-  var ondrain = pipeOnDrain(src);
+  const ondrain = pipeOnDrain(src);
   dest.on('drain', ondrain);
 
-  var cleanedUp = false;
+  let cleanedUp = false;
   function cleanup() {
     debug('cleanup');
     // cleanup event handlers once the pipe is broken
@@ -11123,7 +11123,7 @@ Readable.prototype.pipe = function (dest, pipeOpts) {
   src.on('data', ondata);
   function ondata(chunk) {
     debug('ondata');
-    var ret = dest.write(chunk);
+    const ret = dest.write(chunk);
     if (false === ret) {
       // If the user unpiped during `dest.write()`, it is possible
       // to get stuck in a permanently paused state if that write
@@ -11181,7 +11181,7 @@ Readable.prototype.pipe = function (dest, pipeOpts) {
 
 function pipeOnDrain(src) {
   return function () {
-    var state = src._readableState;
+    const state = src._readableState;
     debug('pipeOnDrain', state.awaitDrain);
     if (state.awaitDrain) state.awaitDrain--;
     if (state.awaitDrain === 0 && EElistenerCount(src, 'data')) {
@@ -11192,7 +11192,7 @@ function pipeOnDrain(src) {
 }
 
 Readable.prototype.unpipe = function (dest) {
-  var state = this._readableState;
+  const state = this._readableState;
 
   // if we're not piping anywhere, then do nothing.
   if (state.pipesCount === 0) return this;
@@ -11216,19 +11216,19 @@ Readable.prototype.unpipe = function (dest) {
 
   if (!dest) {
     // remove all.
-    var dests = state.pipes;
-    var len = state.pipesCount;
+    const dests = state.pipes;
+    const len = state.pipesCount;
     state.pipes = null;
     state.pipesCount = 0;
     state.flowing = false;
 
-    for (var _i = 0; _i < len; _i++) {
+    for (let _i = 0; _i < len; _i++) {
       dests[_i].emit('unpipe', this);
     }return this;
   }
 
   // try to find the right one.
-  var i = indexOf(state.pipes, dest);
+  const i = indexOf(state.pipes, dest);
   if (i === -1) return this;
 
   state.pipes.splice(i, 1);
@@ -11243,7 +11243,7 @@ Readable.prototype.unpipe = function (dest) {
 // set up data events if they are asked for
 // Ensure readable listeners eventually get something
 Readable.prototype.on = function (ev, fn) {
-  var res = Stream.prototype.on.call(this, ev, fn);
+  const res = Stream.prototype.on.call(this, ev, fn);
 
   // If listening to data, and it has not explicitly been paused,
   // then call resume to start the flow of data on the next tick.
@@ -11252,7 +11252,7 @@ Readable.prototype.on = function (ev, fn) {
   }
 
   if (ev === 'readable' && !this._readableState.endEmitted) {
-    var state = this._readableState;
+    const state = this._readableState;
     if (!state.readableListening) {
       state.readableListening = true;
       state.emittedReadable = false;
@@ -11277,7 +11277,7 @@ function nReadingNextTick(self) {
 // pause() and resume() are remnants of the legacy readable stream API
 // If the user uses them, then switch into old mode.
 Readable.prototype.resume = function () {
-  var state = this._readableState;
+  const state = this._readableState;
   if (!state.flowing) {
     debug('resume');
     state.flowing = true;
@@ -11316,11 +11316,11 @@ Readable.prototype.pause = function () {
 };
 
 function flow(stream) {
-  var state = stream._readableState;
+  const state = stream._readableState;
   debug('flow', state.flowing);
   if (state.flowing) {
     do {
-      var chunk = stream.read();
+      let chunk = stream.read();
     } while (null !== chunk && state.flowing);
   }
 }
@@ -11329,14 +11329,14 @@ function flow(stream) {
 // This is *not* part of the readable stream interface.
 // It is an ugly unfortunate mess of history.
 Readable.prototype.wrap = function (stream) {
-  var state = this._readableState;
-  var paused = false;
+  const state = this._readableState;
+  let paused = false;
 
-  var self = this;
+  const self = this;
   stream.on('end', function () {
     debug('wrapped end');
     if (state.decoder && !state.ended) {
-      var chunk = state.decoder.end();
+      const chunk = state.decoder.end();
       if (chunk && chunk.length) self.push(chunk);
     }
 
@@ -11350,7 +11350,7 @@ Readable.prototype.wrap = function (stream) {
     // don't skip over falsy values in objectMode
     if (state.objectMode && (chunk === null || chunk === undefined)) return;else if (!state.objectMode && (!chunk || !chunk.length)) return;
 
-    var ret = self.push(chunk);
+    const ret = self.push(chunk);
     if (!ret) {
       paused = true;
       stream.pause();
@@ -11359,7 +11359,7 @@ Readable.prototype.wrap = function (stream) {
 
   // proxy all the other methods.
   // important when wrapping filters and duplexes.
-  for (var i in stream) {
+  for (const i in stream) {
     if (this[i] === undefined && typeof stream[i] === 'function') {
       this[i] = function (method) {
         return function () {
@@ -11370,7 +11370,7 @@ Readable.prototype.wrap = function (stream) {
   }
 
   // proxy certain important events.
-  var events = ['error', 'close', 'destroy', 'pause', 'resume'];
+  const events = ['error', 'close', 'destroy', 'pause', 'resume'];
   forEach(events, function (ev) {
     stream.on(ev, self.emit.bind(self, ev));
   });
@@ -11394,11 +11394,11 @@ Readable._fromList = fromList;
 // Pluck off n bytes from an array of buffers.
 // Length is the combined lengths of all the buffers in the list.
 function fromList(n, state) {
-  var list = state.buffer;
-  var length = state.length;
-  var stringMode = !!state.decoder;
-  var objectMode = !!state.objectMode;
-  var ret;
+  const list = state.buffer;
+  const length = state.length;
+  const stringMode = !!state.decoder;
+  const objectMode = !!state.objectMode;
+  let ret;
 
   // nothing in the list, definitely empty.
   if (list.length === 0) return null;
@@ -11412,7 +11412,7 @@ function fromList(n, state) {
     if (n < list[0].length) {
       // just take a part of the first list item.
       // slice is the same for buffers and strings.
-      var buf = list[0];
+      const buf = list[0];
       ret = buf.slice(0, n);
       list[0] = buf.slice(n);
     } else if (n === list[0].length) {
@@ -11423,10 +11423,10 @@ function fromList(n, state) {
       // we have enough to cover it, but it spans past the first buffer.
       if (stringMode) ret = '';else ret = bufferShim.allocUnsafe(n);
 
-      var c = 0;
-      for (var i = 0, l = list.length; i < l && c < n; i++) {
-        var _buf = list[0];
-        var cpy = Math.min(n - c, _buf.length);
+      let c = 0;
+      for (let i = 0, l = list.length; i < l && c < n; i++) {
+        const _buf = list[0];
+        const cpy = Math.min(n - c, _buf.length);
 
         if (stringMode) ret += _buf.slice(0, cpy);else _buf.copy(ret, c, 0, cpy);
 
@@ -11441,7 +11441,7 @@ function fromList(n, state) {
 }
 
 function endReadable(stream) {
-  var state = stream._readableState;
+  const state = stream._readableState;
 
   // If we get here before consuming all the bytes, then that is a
   // bug in node.  Should never happen.
@@ -11463,13 +11463,13 @@ function endReadableNT(state, stream) {
 }
 
 function forEach(xs, f) {
-  for (var i = 0, l = xs.length; i < l; i++) {
+  for (let i = 0, l = xs.length; i < l; i++) {
     f(xs[i], i);
   }
 }
 
 function indexOf(xs, x) {
-  for (var i = 0, l = xs.length; i < l; i++) {
+  for (let i = 0, l = xs.length; i < l; i++) {
     if (xs[i] === x) return i;
   }
   return -1;
@@ -11522,10 +11522,10 @@ function indexOf(xs, x) {
 
 module.exports = Transform;
 
-var Duplex = require('./_stream_duplex');
+const Duplex = require('./_stream_duplex');
 
 /*<replacement>*/
-var util = require('core-util-is');
+const util = require('core-util-is');
 util.inherits = require('inherits');
 /*</replacement>*/
 
@@ -11544,10 +11544,10 @@ function TransformState(stream) {
 }
 
 function afterTransform(stream, er, data) {
-  var ts = stream._transformState;
+  const ts = stream._transformState;
   ts.transforming = false;
 
-  var cb = ts.writecb;
+  const cb = ts.writecb;
 
   if (!cb) return stream.emit('error', new Error('no writecb in Transform class'));
 
@@ -11558,7 +11558,7 @@ function afterTransform(stream, er, data) {
 
   cb(er);
 
-  var rs = stream._readableState;
+  const rs = stream._readableState;
   rs.reading = false;
   if (rs.needReadable || rs.length < rs.highWaterMark) {
     stream._read(rs.highWaterMark);
@@ -11573,7 +11573,7 @@ function Transform(options) {
   this._transformState = new TransformState(this);
 
   // when the writable side finishes, then flush out anything remaining.
-  var stream = this;
+  const stream = this;
 
   // start out asking for a readable event once data is transformed.
   this._readableState.needReadable = true;
@@ -11616,12 +11616,12 @@ Transform.prototype._transform = function (chunk, encoding, cb) {
 };
 
 Transform.prototype._write = function (chunk, encoding, cb) {
-  var ts = this._transformState;
+  const ts = this._transformState;
   ts.writecb = cb;
   ts.writechunk = chunk;
   ts.writeencoding = encoding;
   if (!ts.transforming) {
-    var rs = this._readableState;
+    const rs = this._readableState;
     if (ts.needTransform || rs.needReadable || rs.length < rs.highWaterMark) this._read(rs.highWaterMark);
   }
 };
@@ -11630,7 +11630,7 @@ Transform.prototype._write = function (chunk, encoding, cb) {
 // _transform does all the work.
 // That we got here means that the readable side wants more data.
 Transform.prototype._read = function (n) {
-  var ts = this._transformState;
+  const ts = this._transformState;
 
   if (ts.writechunk !== null && ts.writecb && !ts.transforming) {
     ts.transforming = true;
@@ -11647,8 +11647,8 @@ function done(stream, er) {
 
   // if there's nothing in the write buffer, then that means
   // that nothing more will ever be provided
-  var ws = stream._writableState;
-  var ts = stream._transformState;
+  const ws = stream._writableState;
+  const ts = stream._transformState;
 
   if (ws.length) throw new Error('Calling transform done when ws.length != 0');
 
@@ -11667,28 +11667,28 @@ function done(stream, er) {
 module.exports = Writable;
 
 /*<replacement>*/
-var processNextTick = require('process-nextick-args');
+const processNextTick = require('process-nextick-args');
 /*</replacement>*/
 
 /*<replacement>*/
-var asyncWrite = !process.browser && ['v0.10', 'v0.9.'].indexOf(process.version.slice(0, 5)) > -1 ? setImmediate : processNextTick;
+const asyncWrite = !process.browser && ['v0.10', 'v0.9.'].indexOf(process.version.slice(0, 5)) > -1 ? setImmediate : processNextTick;
 /*</replacement>*/
 
 Writable.WritableState = WritableState;
 
 /*<replacement>*/
-var util = require('core-util-is');
+const util = require('core-util-is');
 util.inherits = require('inherits');
 /*</replacement>*/
 
 /*<replacement>*/
-var internalUtil = {
+const internalUtil = {
   deprecate: require('util-deprecate')
 };
 /*</replacement>*/
 
 /*<replacement>*/
-var Stream;
+let Stream;
 (function () {
   try {
     Stream = require('st' + 'ream');
@@ -11698,9 +11698,9 @@ var Stream;
 })();
 /*</replacement>*/
 
-var Buffer = require('buffer').Buffer;
+const Buffer = require('buffer').Buffer;
 /*<replacement>*/
-var bufferShim = require('buffer-shims');
+const bufferShim = require('buffer-shims');
 /*</replacement>*/
 
 util.inherits(Writable, Stream);
@@ -11729,8 +11729,8 @@ function WritableState(options, stream) {
   // the point at which write() starts returning false
   // Note: 0 is a valid value, means that we always return false if
   // the entire buffer is not flushed immediately on write()
-  var hwm = options.highWaterMark;
-  var defaultHwm = this.objectMode ? 16 : 16 * 1024;
+  const hwm = options.highWaterMark;
+  const defaultHwm = this.objectMode ? 16 : 16 * 1024;
   this.highWaterMark = hwm || hwm === 0 ? hwm : defaultHwm;
 
   // cast to ints.
@@ -11747,7 +11747,7 @@ function WritableState(options, stream) {
   // should we decode strings into buffers before passing to _write?
   // this is here so that some node-core streams can optimize string
   // handling at a lower level.
-  var noDecode = options.decodeStrings === false;
+  const noDecode = options.decodeStrings === false;
   this.decodeStrings = !noDecode;
 
   // Crypto is kind of old and crusty.  Historically, its default string
@@ -11811,8 +11811,8 @@ function WritableState(options, stream) {
 }
 
 WritableState.prototype.getBuffer = function writableStateGetBuffer() {
-  var current = this.bufferedRequest;
-  var out = [];
+  let current = this.bufferedRequest;
+  const out = [];
   while (current) {
     out.push(current);
     current = current.next;
@@ -11858,7 +11858,7 @@ Writable.prototype.pipe = function () {
 };
 
 function writeAfterEnd(stream, cb) {
-  var er = new Error('write after end');
+  const er = new Error('write after end');
   // TODO: defer error events consistently everywhere, not just the cb
   stream.emit('error', er);
   processNextTick(cb, er);
@@ -11870,8 +11870,8 @@ function writeAfterEnd(stream, cb) {
 // watermarks determine how many objects to keep in the buffer, rather than
 // how many bytes or characters.
 function validChunk(stream, state, chunk, cb) {
-  var valid = true;
-  var er = false;
+  let valid = true;
+  let er = false;
   // Always throw error if a null is written
   // if we are not in object mode then throw
   // if it is not a buffer, string, or undefined.
@@ -11889,8 +11889,8 @@ function validChunk(stream, state, chunk, cb) {
 }
 
 Writable.prototype.write = function (chunk, encoding, cb) {
-  var state = this._writableState;
-  var ret = false;
+  const state = this._writableState;
+  let ret = false;
 
   if (typeof encoding === 'function') {
     cb = encoding;
@@ -11910,13 +11910,13 @@ Writable.prototype.write = function (chunk, encoding, cb) {
 };
 
 Writable.prototype.cork = function () {
-  var state = this._writableState;
+  const state = this._writableState;
 
   state.corked++;
 };
 
 Writable.prototype.uncork = function () {
-  var state = this._writableState;
+  const state = this._writableState;
 
   if (state.corked) {
     state.corked--;
@@ -11947,16 +11947,16 @@ function writeOrBuffer(stream, state, chunk, encoding, cb) {
   chunk = decodeChunk(state, chunk, encoding);
 
   if (Buffer.isBuffer(chunk)) encoding = 'buffer';
-  var len = state.objectMode ? 1 : chunk.length;
+  const len = state.objectMode ? 1 : chunk.length;
 
   state.length += len;
 
-  var ret = state.length < state.highWaterMark;
+  const ret = state.length < state.highWaterMark;
   // we must ensure that previous needDrain will not be reset to false.
   if (!ret) state.needDrain = true;
 
   if (state.writing || state.corked) {
-    var last = state.lastBufferedRequest;
+    const last = state.lastBufferedRequest;
     state.lastBufferedRequest = new WriteReq(chunk, encoding, cb);
     if (last) {
       last.next = state.lastBufferedRequest;
@@ -11996,15 +11996,15 @@ function onwriteStateUpdate(state) {
 }
 
 function onwrite(stream, er) {
-  var state = stream._writableState;
-  var sync = state.sync;
-  var cb = state.writecb;
+  const state = stream._writableState;
+  const sync = state.sync;
+  const cb = state.writecb;
 
   onwriteStateUpdate(state);
 
   if (er) onwriteError(stream, state, sync, er, cb);else {
     // Check if we're actually ready to finish, but don't emit yet
-    var finished = needFinish(state);
+    const finished = needFinish(state);
 
     if (!finished && !state.corked && !state.bufferProcessing && state.bufferedRequest) {
       clearBuffer(stream, state);
@@ -12040,16 +12040,16 @@ function onwriteDrain(stream, state) {
 // if there's something in the buffer waiting, then process it
 function clearBuffer(stream, state) {
   state.bufferProcessing = true;
-  var entry = state.bufferedRequest;
+  let entry = state.bufferedRequest;
 
   if (stream._writev && entry && entry.next) {
     // Fast case, write everything using _writev()
-    var l = state.bufferedRequestCount;
-    var buffer = new Array(l);
-    var holder = state.corkedRequestsFree;
+    const l = state.bufferedRequestCount;
+    const buffer = new Array(l);
+    const holder = state.corkedRequestsFree;
     holder.entry = entry;
 
-    var count = 0;
+    let count = 0;
     while (entry) {
       buffer[count] = entry;
       entry = entry.next;
@@ -12071,10 +12071,10 @@ function clearBuffer(stream, state) {
   } else {
     // Slow case, write chunks one-by-one
     while (entry) {
-      var chunk = entry.chunk;
-      var encoding = entry.encoding;
-      var cb = entry.callback;
-      var len = state.objectMode ? 1 : chunk.length;
+      const chunk = entry.chunk;
+      const encoding = entry.encoding;
+      const cb = entry.callback;
+      const len = state.objectMode ? 1 : chunk.length;
 
       doWrite(stream, state, false, len, chunk, encoding, cb);
       entry = entry.next;
@@ -12102,7 +12102,7 @@ Writable.prototype._write = function (chunk, encoding, cb) {
 Writable.prototype._writev = null;
 
 Writable.prototype.end = function (chunk, encoding, cb) {
-  var state = this._writableState;
+  const state = this._writableState;
 
   if (typeof chunk === 'function') {
     cb = chunk;
@@ -12137,7 +12137,7 @@ function prefinish(stream, state) {
 }
 
 function finishMaybe(stream, state) {
-  var need = needFinish(state);
+  const need = needFinish(state);
   if (need) {
     if (state.pendingcb === 0) {
       prefinish(stream, state);
@@ -12163,16 +12163,16 @@ function endWritable(stream, state, cb) {
 // It seems a linked list but it is not
 // there will be only 2 of these for each stream
 function CorkedRequest(state) {
-  var _this = this;
+  const _this = this;
 
   this.next = null;
   this.entry = null;
 
   this.finish = function (err) {
-    var entry = _this.entry;
+    let entry = _this.entry;
     _this.entry = null;
     while (entry) {
-      var cb = entry.callback;
+      const cb = entry.callback;
       state.pendingcb--;
       cb(err);
       entry = entry.next;
@@ -12190,7 +12190,7 @@ module.exports = require("./lib/_stream_passthrough.js")
 
 },{"./lib/_stream_passthrough.js":63}],68:[function(require,module,exports){
 (function (process){
-var Stream = (function (){
+const Stream = (function (){
   try {
     return require('st' + 'ream'); // hack to fix a circular dependency issue when used with browserify
   } catch(_){}
@@ -12236,9 +12236,9 @@ module.exports = require("./lib/_stream_writable.js")
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
 // USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-var Buffer = require('buffer').Buffer;
+const Buffer = require('buffer').Buffer;
 
-var isBufferEncoding = Buffer.isEncoding
+const isBufferEncoding = Buffer.isEncoding
   || function(encoding) {
        switch (encoding && encoding.toLowerCase()) {
          case 'hex': case 'utf8': case 'utf-8': case 'ascii': case 'binary': case 'base64': case 'ucs2': case 'ucs-2': case 'utf16le': case 'utf-16le': case 'raw': return true;
@@ -12261,7 +12261,7 @@ function assertEncoding(encoding) {
 // to reason about this code, so it should be split up in the future.
 // @TODO There should be a utf8-strict encoding that rejects invalid UTF-8 code
 // points as used by CESU-8.
-var StringDecoder = exports.StringDecoder = function(encoding) {
+const StringDecoder = exports.StringDecoder = function(encoding) {
   this.encoding = (encoding || 'utf8').toLowerCase().replace(/[-_]/, '');
   assertEncoding(encoding);
   switch (this.encoding) {
@@ -12305,11 +12305,11 @@ var StringDecoder = exports.StringDecoder = function(encoding) {
 // Buffer#write) will replace incomplete surrogates with the unicode
 // replacement character. See https://codereview.chromium.org/121173009/ .
 StringDecoder.prototype.write = function(buffer) {
-  var charStr = '';
+  let charStr = '';
   // if our last write ended with an incomplete multibyte character
   while (this.charLength) {
     // determine how many remaining bytes this buffer has to offer for this char
-    var available = (buffer.length >= this.charLength - this.charReceived) ?
+    const available = (buffer.length >= this.charLength - this.charReceived) ?
         this.charLength - this.charReceived :
         buffer.length;
 
@@ -12329,7 +12329,7 @@ StringDecoder.prototype.write = function(buffer) {
     charStr = this.charBuffer.slice(0, this.charLength).toString(this.encoding);
 
     // CESU-8: lead surrogate (D800-DBFF) is also the incomplete character
-    var charCode = charStr.charCodeAt(charStr.length - 1);
+    let charCode = charStr.charCodeAt(charStr.length - 1);
     if (charCode >= 0xD800 && charCode <= 0xDBFF) {
       this.charLength += this.surrogateSize;
       charStr = '';
@@ -12357,10 +12357,10 @@ StringDecoder.prototype.write = function(buffer) {
   charStr += buffer.toString(this.encoding, 0, end);
 
   var end = charStr.length - 1;
-  var charCode = charStr.charCodeAt(end);
+  let charCode = charStr.charCodeAt(end);
   // CESU-8: lead surrogate (D800-DBFF) is also the incomplete character
   if (charCode >= 0xD800 && charCode <= 0xDBFF) {
-    var size = this.surrogateSize;
+    const size = this.surrogateSize;
     this.charLength += size;
     this.charReceived += size;
     this.charBuffer.copy(this.charBuffer, size, 0, size);
@@ -12378,12 +12378,12 @@ StringDecoder.prototype.write = function(buffer) {
 // that are available for this character.
 StringDecoder.prototype.detectIncompleteChar = function(buffer) {
   // determine how many bytes we have to check at the end of this buffer
-  var i = (buffer.length >= 3) ? 3 : buffer.length;
+  let i = (buffer.length >= 3) ? 3 : buffer.length;
 
   // Figure out if one of the last i bytes of our buffer announces an
   // incomplete char.
   for (; i > 0; i--) {
-    var c = buffer[buffer.length - i];
+    const c = buffer[buffer.length - i];
 
     // See http://en.wikipedia.org/wiki/UTF-8#Description
 
@@ -12409,14 +12409,14 @@ StringDecoder.prototype.detectIncompleteChar = function(buffer) {
 };
 
 StringDecoder.prototype.end = function(buffer) {
-  var res = '';
+  let res = '';
   if (buffer && buffer.length)
     res = this.write(buffer);
 
   if (this.charReceived) {
-    var cr = this.charReceived;
-    var buf = this.charBuffer;
-    var enc = this.encoding;
+    const cr = this.charReceived;
+    const buf = this.charBuffer;
+    const enc = this.encoding;
     res += buf.slice(0, cr).toString(enc);
   }
 
@@ -12475,7 +12475,7 @@ function toIsoString (date) {
  */
 
 function pad (number) {
-  var n = number.toString();
+  const n = number.toString();
   return n.length === 1 ? '0' + n : n;
 }
 },{}],73:[function(require,module,exports){
@@ -12510,7 +12510,7 @@ function deprecate (fn, msg) {
     return fn;
   }
 
-  var warned = false;
+  let warned = false;
   function deprecated() {
     if (!warned) {
       if (config('throwDeprecation')) {
@@ -12543,7 +12543,7 @@ function config (name) {
   } catch (_) {
     return false;
   }
-  var val = global.localStorage[name];
+  const val = global.localStorage[name];
   if (null == val) return false;
   return String(val).toLowerCase() === 'true';
 }
@@ -12579,20 +12579,20 @@ module.exports = function isBuffer(arg) {
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
 // USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-var formatRegExp = /%[sdj%]/g;
+const formatRegExp = /%[sdj%]/g;
 exports.format = function(f) {
   if (!isString(f)) {
-    var objects = [];
-    for (var i = 0; i < arguments.length; i++) {
+    const objects = [];
+    for (let i = 0; i < arguments.length; i++) {
       objects.push(inspect(arguments[i]));
     }
     return objects.join(' ');
   }
 
-  var i = 1;
-  var args = arguments;
-  var len = args.length;
-  var str = String(f).replace(formatRegExp, function(x) {
+  let i = 1;
+  const args = arguments;
+  const len = args.length;
+  let str = String(f).replace(formatRegExp, function(x) {
     if (x === '%%') return '%';
     if (i >= len) return x;
     switch (x) {
@@ -12608,7 +12608,7 @@ exports.format = function(f) {
         return x;
     }
   });
-  for (var x = args[i]; i < len; x = args[++i]) {
+  for (let x = args[i]; i < len; x = args[++i]) {
     if (isNull(x) || !isObject(x)) {
       str += ' ' + x;
     } else {
@@ -12634,7 +12634,7 @@ exports.deprecate = function(fn, msg) {
     return fn;
   }
 
-  var warned = false;
+  let warned = false;
   function deprecated() {
     if (!warned) {
       if (process.throwDeprecation) {
@@ -12653,17 +12653,17 @@ exports.deprecate = function(fn, msg) {
 };
 
 
-var debugs = {};
-var debugEnviron;
+const debugs = {};
+let debugEnviron;
 exports.debuglog = function(set) {
   if (isUndefined(debugEnviron))
     debugEnviron = process.env.NODE_DEBUG || '';
   set = set.toUpperCase();
   if (!debugs[set]) {
     if (new RegExp('\\b' + set + '\\b', 'i').test(debugEnviron)) {
-      var pid = process.pid;
+      const pid = process.pid;
       debugs[set] = function() {
-        var msg = exports.format.apply(exports, arguments);
+        const msg = exports.format.apply(exports, arguments);
         console.error('%s %d: %s', set, pid, msg);
       };
     } else {
@@ -12684,7 +12684,7 @@ exports.debuglog = function(set) {
 /* legacy: obj, showHidden, depth, colors*/
 function inspect(obj, opts) {
   // default options
-  var ctx = {
+  const ctx = {
     seen: [],
     stylize: stylizeNoColor
   };
@@ -12741,7 +12741,7 @@ inspect.styles = {
 
 
 function stylizeWithColor(str, styleType) {
-  var style = inspect.styles[styleType];
+  const style = inspect.styles[styleType];
 
   if (style) {
     return '\u001b[' + inspect.colors[style][0] + 'm' + str +
@@ -12758,7 +12758,7 @@ function stylizeNoColor(str, styleType) {
 
 
 function arrayToHash(array) {
-  var hash = {};
+  const hash = {};
 
   array.forEach(function(val, idx) {
     hash[val] = true;
@@ -12778,7 +12778,7 @@ function formatValue(ctx, value, recurseTimes) {
       value.inspect !== exports.inspect &&
       // Also filter out any prototype objects using the circular check.
       !(value.constructor && value.constructor.prototype === value)) {
-    var ret = value.inspect(recurseTimes, ctx);
+    let ret = value.inspect(recurseTimes, ctx);
     if (!isString(ret)) {
       ret = formatValue(ctx, ret, recurseTimes);
     }
@@ -12786,14 +12786,14 @@ function formatValue(ctx, value, recurseTimes) {
   }
 
   // Primitive types cannot have properties
-  var primitive = formatPrimitive(ctx, value);
+  const primitive = formatPrimitive(ctx, value);
   if (primitive) {
     return primitive;
   }
 
   // Look up the keys of the object.
-  var keys = Object.keys(value);
-  var visibleKeys = arrayToHash(keys);
+  let keys = Object.keys(value);
+  const visibleKeys = arrayToHash(keys);
 
   if (ctx.showHidden) {
     keys = Object.getOwnPropertyNames(value);
@@ -12809,7 +12809,7 @@ function formatValue(ctx, value, recurseTimes) {
   // Some type of object without properties can be shortcutted.
   if (keys.length === 0) {
     if (isFunction(value)) {
-      var name = value.name ? ': ' + value.name : '';
+      const name = value.name ? ': ' + value.name : '';
       return ctx.stylize('[Function' + name + ']', 'special');
     }
     if (isRegExp(value)) {
@@ -12823,7 +12823,7 @@ function formatValue(ctx, value, recurseTimes) {
     }
   }
 
-  var base = '', array = false, braces = ['{', '}'];
+  let base = '', array = false, braces = ['{', '}'];
 
   // Make Array say that they are Array
   if (isArray(value)) {
@@ -12833,7 +12833,7 @@ function formatValue(ctx, value, recurseTimes) {
 
   // Make functions say that they are functions
   if (isFunction(value)) {
-    var n = value.name ? ': ' + value.name : '';
+    const n = value.name ? ': ' + value.name : '';
     base = ' [Function' + n + ']';
   }
 
@@ -12866,7 +12866,7 @@ function formatValue(ctx, value, recurseTimes) {
 
   ctx.seen.push(value);
 
-  var output;
+  let output;
   if (array) {
     output = formatArray(ctx, value, recurseTimes, visibleKeys, keys);
   } else {
@@ -12885,7 +12885,7 @@ function formatPrimitive(ctx, value) {
   if (isUndefined(value))
     return ctx.stylize('undefined', 'undefined');
   if (isString(value)) {
-    var simple = '\'' + JSON.stringify(value).replace(/^"|"$/g, '')
+    const simple = '\'' + JSON.stringify(value).replace(/^"|"$/g, '')
                                              .replace(/'/g, "\\'")
                                              .replace(/\\"/g, '"') + '\'';
     return ctx.stylize(simple, 'string');
@@ -12906,8 +12906,8 @@ function formatError(value) {
 
 
 function formatArray(ctx, value, recurseTimes, visibleKeys, keys) {
-  var output = [];
-  for (var i = 0, l = value.length; i < l; ++i) {
+  const output = [];
+  for (let i = 0, l = value.length; i < l; ++i) {
     if (hasOwnProperty(value, String(i))) {
       output.push(formatProperty(ctx, value, recurseTimes, visibleKeys,
           String(i), true));
@@ -12926,7 +12926,7 @@ function formatArray(ctx, value, recurseTimes, visibleKeys, keys) {
 
 
 function formatProperty(ctx, value, recurseTimes, visibleKeys, key, array) {
-  var name, str, desc;
+  let name, str, desc;
   desc = Object.getOwnPropertyDescriptor(value, key) || { value: value[key] };
   if (desc.get) {
     if (desc.set) {
@@ -12985,8 +12985,8 @@ function formatProperty(ctx, value, recurseTimes, visibleKeys, key, array) {
 
 
 function reduceToSingleString(output, base, braces) {
-  var numLinesEst = 0;
-  var length = output.reduce(function(prev, cur) {
+  let numLinesEst = 0;
+  const length = output.reduce(function(prev, cur) {
     numLinesEst++;
     if (cur.indexOf('\n') >= 0) numLinesEst++;
     return prev + cur.replace(/\u001b\[\d\d?m/g, '').length + 1;
@@ -13095,13 +13095,13 @@ function pad(n) {
 }
 
 
-var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep',
+const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep',
               'Oct', 'Nov', 'Dec'];
 
 // 26 Feb 16:19:34
 function timestamp() {
-  var d = new Date();
-  var time = [pad(d.getHours()),
+  const d = new Date();
+  const time = [pad(d.getHours()),
               pad(d.getMinutes()),
               pad(d.getSeconds())].join(':');
   return [d.getDate(), months[d.getMonth()], time].join(' ');
@@ -13133,8 +13133,8 @@ exports._extend = function(origin, add) {
   // Don't do anything if add isn't an object
   if (!add || !isObject(add)) return origin;
 
-  var keys = Object.keys(add);
-  var i = keys.length;
+  const keys = Object.keys(add);
+  let i = keys.length;
   while (i--) {
     origin[keys[i]] = add[keys[i]];
   }
