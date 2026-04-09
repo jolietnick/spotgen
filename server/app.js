@@ -54,7 +54,7 @@ function createApp () {
 
     try {
       console.log = function (...args) {
-        const message = args.map(String(part)).join(' ')
+        const message = args.map((part) => String(part)).join(' ')
         logs.push(message)
       }
 

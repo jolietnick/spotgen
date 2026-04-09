@@ -761,9 +761,21 @@ Collection.prototype.order = function () {
         const x = a[this.ordering]
         const y = b[this.ordering]
         if (typeof x === 'string') {
-          return (x < y) ? -1 : ((x > y) ? 1 : 0)
+          if (x < y) {
+            return -1
+          }
+          if (x > y) {
+            return 1
+          }
+          return 0
         } else {
-          return (x < y) ? 1 : ((x > y) ? -1 : 0)
+          if (x < y) {
+            return 1
+          }
+          if (x > y) {
+            return -1
+          }
+          return 0
         }
       })
     })
@@ -1054,7 +1066,7 @@ module.exports = http
 },{}],8:[function(require,module,exports){
 const http = require('./http')
 
-module.exports = function (key) {
+module.exports = function createLastfm (key) {
   const lastfm = {}
 
   /**
@@ -1547,7 +1559,7 @@ Playlist.prototype.searchPlaylists = function () {
       }
     }).catch(() => {
       // console.log('COULD NOT FIND ' + this.entry)
-      throw null
+      throw new Error('COULD NOT FIND: ' + this.entry)
     })
   }
 }
@@ -1613,7 +1625,14 @@ Queue.prototype.concat = function (queue) {
  * `false` otherwise.
  */
 Queue.prototype.contains = function (obj) {
-  return this.indexOf(obj) >= 0
+  if (this.queue.includes(obj)) {
+    return true
+  }
+  return _.findIndex(this.queue, function (entry) {
+    return entry && entry.similarTo &&
+      obj && obj.similarTo &&
+      entry.similarTo(obj)
+  }) !== -1
 }
 
 /**
@@ -1625,10 +1644,7 @@ Queue.prototype.contains = function (obj) {
 Queue.prototype.dedup = function () {
   const result = new Queue()
   return this.forEachPromise((entry) => {
-    if (!result.contains(entry)) {
-      result.add(entry)
-      return Promise.resolve(entry)
-    } else {
+    if (result.contains(entry)) {
       const idx = this.indexOf(entry)
       const other = result.get(idx)
       if (entry.equals(other)) {
@@ -1642,6 +1658,9 @@ Queue.prototype.dedup = function () {
           })
         })
       }
+    } else {
+      result.add(entry)
+      return Promise.resolve(entry)
     }
   }).then(() => {
     this.queue = result.toArray()
@@ -1776,7 +1795,7 @@ Queue.prototype.indexOf = function (obj) {
  * @return {Queue} - Itself.
  */
 Queue.prototype.interleave = function () {
-  this.queue = _.compact(_.flatten(_.zip.apply(null, this.toArray())))
+  this.queue = _.compact(_.zip.apply(null, this.toArray()).flat())
   return this
 }
 
@@ -1928,6 +1947,34 @@ function WebScraper (uri, count, parser) {
   this.parser = parser
 }
 
+function parseRedditCommentLines (block) {
+  // First assumption: links usually point to track references.
+  const links = block.find('a')
+  if (links.length > 0) {
+    let linkLines = ''
+    links.each(function () {
+      const txt = $(this).text()
+      if (!txt.match(/https?:/gi)) {
+        linkLines += util.stripNoise(txt) + '\n'
+      }
+    })
+    return linkLines
+  }
+
+  const body = block.text()
+  const sentences = body.split('.')
+  if (sentences.length > 1) {
+    return util.stripNoise(sentences[0]) + '\n'
+  }
+
+  const bodyLines = body.split('\n')
+  if (bodyLines.length > 1) {
+    return util.stripNoise(bodyLines[0]) + '\n'
+  }
+
+  return util.stripNoise(body) + '\n'
+}
+
 /**
  * Scrape a web page.
  *
@@ -2000,8 +2047,7 @@ WebScraper.prototype.dispatch = function () {
  * @param {integer} [count] - The number of pages to scrape.
  * @return {Promise | string} A newline-separated list of tracks.
  */
-WebScraper.prototype.lastfm = function (uri, count) {
-  count = count || 1
+WebScraper.prototype.lastfm = function (uri, count = 1) {
   function getPages (nextUri, result, count) {
     nextUri = URI(nextUri).absoluteTo(uri).toString()
     console.log(nextUri + '\n')
@@ -2047,7 +2093,7 @@ WebScraper.prototype.lastfm = function (uri, count) {
           }
         })
       }
-      console.log(util.stripWhitespace(lines, '\\t') + '\n')
+      console.log(util.stripWhitespace(lines, String.raw`\t`) + '\n')
       result += lines
       if (count === 1) {
         return result
@@ -2071,8 +2117,7 @@ WebScraper.prototype.lastfm = function (uri, count) {
  * @param {integer} [count] - The number of pages to scrape.
  * @return {Promise | string} A newline-separated list of albums.
  */
-WebScraper.prototype.pitchfork = function (uri, count) {
-  count = count || 0
+WebScraper.prototype.pitchfork = function (uri, count = 0) {
   function getPages (nextUri, result, count) {
     nextUri = URI(nextUri).absoluteTo(uri).toString()
     console.log(nextUri + '\n')
@@ -2084,7 +2129,7 @@ WebScraper.prototype.pitchfork = function (uri, count) {
         const album = util.normalize($(this).find('h2[class*="work-title"]').text())
         lines += '#album ' + artist + '\t-\t' + album + '\n'
       })
-      console.log(util.stripWhitespace(lines, '\\t') + '\n')
+      console.log(util.stripWhitespace(lines, String.raw`\t`) + '\n')
       result += lines
       if (count === 1) {
         return result
@@ -2108,8 +2153,7 @@ WebScraper.prototype.pitchfork = function (uri, count) {
  * @param {integer} [count] - The number of pages to scrape.
  * @return {Promise | string} A newline-separated list of albums.
  */
-WebScraper.prototype.rateyourmusic = function (uri, count) {
-  count = count || 0
+WebScraper.prototype.rateyourmusic = function (uri, count = 0) {
   function getPages (nextUri, result, count) {
     nextUri = URI(nextUri).absoluteTo(uri).toString()
     console.log(nextUri + '\n')
@@ -2121,7 +2165,7 @@ WebScraper.prototype.rateyourmusic = function (uri, count) {
         const album = util.normalize($(this).find('a.album').text())
         lines += '#album ' + artist + '\t-\t' + album + '\n'
       })
-      console.log(util.stripWhitespace(lines, '\\t') + '\n')
+      console.log(util.stripWhitespace(lines, String.raw`\t`) + '\n')
       result += lines
       if (count === 1) {
         return result
@@ -2149,8 +2193,7 @@ WebScraper.prototype.rateyourmusic = function (uri, count) {
  * @param {integer} [count] - The number of pages to scrape.
  * @return {Promise | string} A newline-separated list of tracks.
  */
-WebScraper.prototype.reddit = function (uri, count) {
-  count = count || 1
+WebScraper.prototype.reddit = function (uri, count = 1) {
   function getPages (nextUri, result, count) {
     nextUri = URI(nextUri).absoluteTo(uri).toString()
     console.log(nextUri + '\n')
@@ -2160,36 +2203,7 @@ WebScraper.prototype.reddit = function (uri, count) {
       if (uri.match(/\/comments\//gi)) {
         // comments thread
         html.find('div.entry div.md').each(function () {
-          // first assumption: if there are links,
-          // they are probably links to songs
-          const links = $(this).find('a')
-          if (links.length > 0) {
-            links.each(function () {
-              const txt = $(this).text()
-              if (!txt.match(/https?:/gi)) {
-                lines += util.stripNoise(txt) + '\n'
-              }
-            })
-            return
-          }
-          // second assumption: if there are multiple sentences,
-          // the song is the first one
-          const body = $(this).text()
-          const sentences = body.split('.')
-          if (sentences.length > 1) {
-            lines += util.stripNoise(sentences[0]) + '\n'
-            return
-          }
-          // third assumption: if there are multiple lines to a comment,
-          // then the song will be on the first line with a user's
-          // comments on other lines after it
-          const bodyLines = body.split('\n')
-          if (bodyLines.length > 1) {
-            lines += util.stripNoise(bodyLines[0]) + '\n'
-            return
-          }
-          // fall-back case
-          lines += util.stripNoise(body) + '\n'
+          lines += parseRedditCommentLines($(this))
         })
       } else {
         // post listing
@@ -2198,7 +2212,7 @@ WebScraper.prototype.reddit = function (uri, count) {
           lines += track + '\n'
         })
       }
-      console.log(util.stripWhitespace(lines, '\\t') + '\n')
+      console.log(util.stripWhitespace(lines, String.raw`\t`) + '\n')
       result += lines
       if (count === 1) {
         return result
@@ -2390,7 +2404,13 @@ function sort (arr, fn) {
   pairs = pairs.sort(function (a, b) {
     const x = fn(a.val, b.val)
     if (x) { return x }
-    return (a.idx < b.idx) ? -1 : ((a.idx > b.idx) ? 1 : 0)
+    if (a.idx < b.idx) {
+      return -1
+    }
+    if (a.idx > b.idx) {
+      return 1
+    }
+    return 0
   })
   for (i = 0; i < arr.length; i++) {
     arr[i] = pairs[i].val
@@ -2408,7 +2428,13 @@ function sort (arr, fn) {
  */
 sort.ascending = function (fn) {
   return sort.comparator(function (x, y) {
-    return (x < y) ? -1 : ((x > y) ? 1 : 0)
+    if (x < y) {
+      return -1
+    }
+    if (x > y) {
+      return 1
+    }
+    return 0
   }, fn)
 }
 
@@ -2422,7 +2448,13 @@ sort.ascending = function (fn) {
  */
 sort.descending = function (fn) {
   return sort.comparator(function (x, y) {
-    return (x < y) ? 1 : ((x > y) ? -1 : 0)
+    if (x < y) {
+      return 1
+    }
+    if (x > y) {
+      return -1
+    }
+    return 0
   }, fn)
 }
 
@@ -2588,20 +2620,19 @@ sort.track = function (track) {
 module.exports = sort
 
 },{"lodash":76,"string-similarity":95}],15:[function(require,module,exports){
-(function (process){(function (){
 const URI = require('urijs')
 const http = require('./http')
 const SpotifyAuth = require('./auth')
-const ENV = (typeof process !== 'undefined' && process) ? process.env : null
+const ENV = globalThis.process ? globalThis.process.env : null
 const DEFAULT_MARKET = ENV ? (ENV.SPOTGEN_SPOTIFY_MARKET || 'US') : 'US'
 
 function getPath (obj, path) {
   let current = obj
-  for (let i = 0; i < path.length; i++) {
-    if (current === null || typeof current === 'undefined') {
+  for (const key of path) {
+    if (current === null || current === undefined) {
       return undefined
     }
-    current = current[path[i]]
+    current = current[key]
   }
   return current
 }
@@ -2808,9 +2839,12 @@ SpotifyWebApi.prototype.request = function (uri, options) {
     options.headers.Authorization = 'Bearer ' + token
     return this.http(uri, options)
   }).catch((error_) => {
-    const status = typeof error_ === 'number'
-      ? error_
-      : (error_ ? error_.status : null)
+    let status = null
+    if (typeof error_ === 'number') {
+      status = error_
+    } else if (error_) {
+      status = error_.status
+    }
     if (status === 401 || status === 403) {
       return this.auth.refreshToken().then((token) => {
         options.headers.Authorization = 'Bearer ' + token
@@ -2923,8 +2957,7 @@ SpotifyWebApi.prototype.searchTracks = function (track, artist, album) {
 
 module.exports = SpotifyWebApi
 
-}).call(this)}).call(this,require('_process'))
-},{"./auth":3,"./http":7,"_process":78,"urijs":102}],16:[function(require,module,exports){
+},{"./auth":3,"./http":7,"urijs":102}],16:[function(require,module,exports){
 const Artist = require('./artist')
 const Queue = require('./queue')
 const sort = require('./sort')
@@ -3004,8 +3037,7 @@ Top.prototype.dispatch = function () {
  * Fetch top tracks.
  * @return {Promise | JSON} A JSON response.
  */
-Top.prototype.getArtistTopTracks = function (country) {
-  country = country || 'US'
+Top.prototype.getArtistTopTracks = function (country = 'US') {
   return this.spotify.getArtistTopTracks(this.id, country).then((response) => {
     sort(response.body.tracks, sort.popularity)
     this.tracks = response.body.tracks
@@ -3037,6 +3069,18 @@ const defaults = require('./defaults')
 const lastfm = require('./lastfm')(defaults.api)
 const sort = require('./sort')
 const util = require('./util')
+
+function numberToString (num) {
+  return (Number.isInteger(num) && (num >= 0)) ? num : ''
+}
+
+function trimTrackTitle (str) {
+  str = util.toAscii(str)
+  str = util.stripPunctuation(str)
+  str = util.stripWhitespace(str)
+  str = str.toLowerCase()
+  return str
+}
 
 /**
  * Create track entry.
@@ -3169,9 +3213,6 @@ Track.prototype.clone = function (response) {
  * @return {string} Track data in CSV format.
  */
 Track.prototype.csv = function () {
-  function numberToString (num) {
-    return (Number.isInteger(num) && (num >= 0)) ? num : ''
-  }
   return csvStringify([[
     this.uri,
     this.name,
@@ -3220,14 +3261,14 @@ Track.prototype.getAudioFeaturesForTrack = function (id) {
     return this.spotify.getAudioFeaturesForTrack(id).then((response) => {
       this.clone(response.body)
       // define aliases
-      this.unacousticness = 1.0 - (this.acousticness || 0.0)
-      this.undanceability = 1.0 - (this.danceability || 0.0)
-      this.unenergy = 1.0 - (this.energy || 0.0)
-      this.uninstrumentalness = 1.0 - (this.instrumentalness || 0.0)
-      this.unliveness = 1.0 - (this.liveness || 0.0)
-      this.unloudness = 1.0 - (this.loudness || 0.0)
-      this.unspeechiness = 1.0 - (this.speechiness || 0.0)
-      this.unvalence = 1.0 - (this.valence || 0.0)
+      this.unacousticness = 1 - (this.acousticness || 0)
+      this.undanceability = 1 - (this.danceability || 0)
+      this.unenergy = 1 - (this.energy || 0)
+      this.uninstrumentalness = 1 - (this.instrumentalness || 0)
+      this.unliveness = 1 - (this.liveness || 0)
+      this.unloudness = 1 - (this.loudness || 0)
+      this.unspeechiness = 1 - (this.speechiness || 0)
+      this.unvalence = 1 - (this.valence || 0)
       return this
     })
   }
@@ -3340,7 +3381,7 @@ Track.prototype.getTrack = function (id) {
       return this
     }).catch(() => {
       console.log('COULD NOT FIND: ' + this.entry)
-      throw null
+      throw new Error('COULD NOT FIND: ' + this.entry)
     })
   }
 }
@@ -3421,7 +3462,7 @@ Track.prototype.searchTracks = function (track, artist, album) {
         // try again without artist
         return searchTrackArtist(title, artist)
       } else {
-        throw null
+        throw new Error('COULD NOT FIND: ' + this.entry)
       }
     })
   }
@@ -3433,7 +3474,7 @@ Track.prototype.searchTracks = function (track, artist, album) {
       if (str && str !== query) {
         return search(str)
       } else {
-        throw null
+        throw new Error('COULD NOT FIND: ' + this.entry)
       }
     }).catch(() => {
       // try again as ID
@@ -3441,7 +3482,7 @@ Track.prototype.searchTracks = function (track, artist, album) {
         return this.getTrack(query)
       } else {
         console.log('COULD NOT FIND: ' + this.entry)
-        throw null
+        throw new Error('COULD NOT FIND: ' + this.entry)
       }
     })
   }
@@ -3473,18 +3514,11 @@ Track.prototype.searchTracks = function (track, artist, album) {
  * `false` otherwise.
  */
 Track.prototype.similarTo = function (track) {
-  function trim (str) {
-    str = util.toAscii(str)
-    str = util.stripPunctuation(str)
-    str = util.stripWhitespace(str)
-    str = str.toLowerCase()
-    return str
-  }
   return this.equals(track) ||
     (this.title && track.title &&
      (this.title === track.title ||
-      (trim(this.title) !== '' &&
-       trim(this.title) === trim(track.title))))
+      (trimTrackTitle(this.title) !== '' &&
+       trimTrackTitle(this.title) === trimTrackTitle(track.title))))
 }
 
 /**
