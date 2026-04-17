@@ -69,11 +69,35 @@
         >
       </h1>
       <form id="form">
+        <div class="mode-toolbar" aria-label="Input mode">
+          <button type="button" class="mode-btn active" data-mode="track">
+            Track
+          </button>
+          <button type="button" class="mode-btn" data-mode="album">
+            Album
+          </button>
+          <button type="button" class="mode-btn" data-mode="top">Top</button>
+          <button type="button" class="mode-btn" data-mode="similar">
+            Similar
+          </button>
+          <button type="button" class="mode-btn" data-mode="artist">
+            Artist
+          </button>
+          <button type="button" class="mode-btn" data-mode="playlist">
+            Playlist
+          </button>
+        </div>
+        <div class="mode-builder">
+          <div class="mode-fields"></div>
+          <button type="button" class="btn btn-default mode-add">
+            Add Line
+          </button>
+        </div>
         <div class="form-group">
           <textarea
             class="form-control"
             id="generator-input"
-            placeholder="Write your generator string here (one command per line)"
+            placeholder="ARTIST - TITLE"
           ></textarea>
         </div>
         <div class="generator-actions">
@@ -157,7 +181,7 @@ Elegy to the Void - Beach House</pre
 
 #album Substrata - Biosphere
 #album Selected Ambient Works Volume II - Aphex Twin
-#album ( ) - Sigur Rós
+#album ( ) - Sigur R├│s
 #album A I A: Alien Observer - Grouper
 #album The Magic Place - Julianna Barwick</pre
                   >
@@ -464,7 +488,7 @@ Twilight at Carbon Lake - Deerhunter</pre
             target="_blank"
             rel="noopener noreferrer"
             title="Contact me"
-            >Vegard Øye</a
+            >Vegard ├ÿye</a
           ></strong
         >
       </p>
