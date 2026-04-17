@@ -1,226 +1,41 @@
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
-/* global jQuery:true, localStorage, URLSearchParams */
+/* global jQuery:true */
 /* exported jQuery */
 const $ = require('jquery')
 jQuery = $
 require('bootstrap')
-const Generator = require('../lib/generator')
-const SpotifyAuth = require('../lib/auth')
 
-const MODE_CONFIG = {
-  track: {
-    placeholder: 'ARTIST - TITLE',
-    hint: 'Track mode: write one line per track using "ARTIST - TITLE".',
-    fields: [
-      { id: 'artist', label: 'Artist', required: true, placeholder: 'Beach House' },
-      { id: 'title', label: 'Title', required: true, placeholder: 'Walk in the Park' }
-    ],
-    buildLine: function (values) {
-      return values.artist + ' - ' + values.title
-    },
-    accepts: function (line) {
-      return /^(spotify:track:[0-9a-z]+)$/i.test(line) ||
-        /^(https?:\/\/(open|play)\.spotify\.com\/(.*\/)*track\/([0-9a-z]+))/i.test(line) ||
-        /^(.*?)\s+-\s+(.*)$/i.test(line)
-    }
-  },
-  album: {
-    placeholder: '#album ARTIST - ALBUM',
-    hint: 'Album mode: use "#album ARTIST - ALBUM".',
-    fields: [
-      { id: 'artist', label: 'Artist', required: true, placeholder: 'Biosphere' },
-      { id: 'album', label: 'Album', required: true, placeholder: 'Substrata' },
-      { id: 'limit', label: 'Limit', required: false, placeholder: 'optional, eg 5' }
-    ],
-    buildLine: function (values) {
-      const suffix = values.limit ? values.limit : ''
-      return '#album' + suffix + ' ' + values.artist + ' - ' + values.album
-    },
-    accepts: function (line) {
-      return /^#album(id)?\d*\s+.+$/i.test(line) ||
-        /^(spotify:album:[0-9a-z]+)$/i.test(line) ||
-        /^(https?:\/\/(open|play)\.spotify\.com\/(.*\/)*album\/([0-9a-z]+))/i.test(line)
-    }
-  },
-  top: {
-    placeholder: '#top ARTIST or #top5 ARTIST',
-    hint: 'Top mode: use "#top ARTIST" or "#topN ARTIST".',
-    fields: [
-      { id: 'artist', label: 'Artist', required: true, placeholder: 'Aphex Twin' },
-      { id: 'limit', label: 'Limit', required: false, placeholder: 'optional, eg 10' }
-    ],
-    buildLine: function (values) {
-      const suffix = values.limit ? values.limit : ''
-      return '#top' + suffix + ' ' + values.artist
-    },
-    accepts: function (line) {
-      return /^#top\d*\s+.+$/i.test(line)
-    }
-  },
-  similar: {
-    placeholder: '#similar ARTIST or #similar10 ARTIST',
-    hint: 'Similar mode: use "#similar ARTIST" or "#similarN ARTIST".',
-    fields: [
-      { id: 'artist', label: 'Artist', required: true, placeholder: 'Moby' },
-      { id: 'limit', label: 'Limit', required: false, placeholder: 'optional, eg 10' }
-    ],
-    buildLine: function (values) {
-      const suffix = values.limit ? values.limit : ''
-      return '#similar' + suffix + ' ' + values.artist
-    },
-    accepts: function (line) {
-      return /^#similar\d*\s+.+$/i.test(line)
-    }
-  },
-  artist: {
-    placeholder: '#artist ARTIST or #artist20 ARTIST',
-    hint: 'Artist mode: use "#artist ARTIST" or "#artistN ARTIST".',
-    fields: [
-      { id: 'artist', label: 'Artist', required: true, placeholder: 'Beach House' },
-      { id: 'limit', label: 'Limit', required: false, placeholder: 'optional, eg 20' }
-    ],
-    buildLine: function (values) {
-      const suffix = values.limit ? values.limit : ''
-      return '#artist' + suffix + ' ' + values.artist
-    },
-    accepts: function (line) {
-      return /^#artist\d*\s+.+$/i.test(line) ||
-        /^(spotify:artist:[0-9a-z]+)$/i.test(line) ||
-        /^(https?:\/\/(open|play)\.spotify\.com\/(.*\/)*artist\/([0-9a-z]+))/i.test(line)
-    }
-  },
-  playlist: {
-    placeholder: '#playlist owner:playlistId',
-    hint: 'Playlist mode: use "#playlist owner:playlistId" or playlist URL/URI.',
-    fields: [
-      { id: 'owner', label: 'Owner', required: true, placeholder: 'redditlistentothis' },
-      { id: 'playlistId', label: 'Playlist ID', required: true, placeholder: '6TMNC59e1TuFFE48tJ9V2D' },
-      { id: 'limit', label: 'Limit', required: false, placeholder: 'optional, eg 25' }
-    ],
-    buildLine: function (values) {
-      const suffix = values.limit ? values.limit : ''
-      return '#playlist' + suffix + ' ' + values.owner + ':' + values.playlistId
-    },
-    accepts: function (line) {
-      return /^#playlist\d*\s+[0-9a-z]+[\s/:]+[0-9a-z]+$/i.test(line) ||
-        /^(spotify:user:[0-9a-z]+:playlist:[0-9a-z]+)$/i.test(line) ||
-        /^(https?:\/\/(open|play)\.spotify\.com\/(.*\/)*user\/([0-9a-z]+)\/playlist\/([0-9a-z]+))/i.test(line)
-    }
-  }
-}
+const SpotifyAuth = require('../lib/auth')
+const Generator = require('../lib/generator')
 
 function setLog (message) {
   $('.log').text(message || '')
 }
 
 function token () {
-  let hash = window.location.hash
-  hash = hash.replace(/^#/, '')
-  const urlParams = new URLSearchParams(hash)
-  if (!urlParams.has('access_token')) {
-    return ''
-  } else {
-    return urlParams.get('access_token')
-  }
+  const hash = window.location.hash || ''
+  const query = hash.startsWith('#') ? hash.slice(1) : hash
+  const urlParams = new URLSearchParams(query)
+  return urlParams.get('access_token') || ''
 }
 
 function hasToken () {
   return token() !== ''
 }
 
-function activeMode () {
-  return $('.mode-btn.active').data('mode')
-}
-
-function isGlobalDirective (line) {
-  return /^##/i.test(line) ||
-    /^#extm3u/i.test(line) ||
-    /^#extinf(?::\d+,(.+))?/i.test(line) ||
-    /^sep=,/i.test(line) ||
-    /^#(sort|order)\s*by\s+([^\s/:]*)(?:[\s/:]+([^\s]*))?/i.test(line) ||
-    /^#group\s*by\s+(.*)/i.test(line) ||
-    /^#(alternate|interleave)\s*by\s+(.*)/i.test(line) ||
-    /^#(dup(licates?)?|nonunique|nondistinct)/i.test(line) ||
-    /^#(unique|distinct|dedup)/i.test(line) ||
-    /^#reverse/i.test(line) ||
-    /^#shuffle/i.test(line) ||
-    /^#(csv|cvs)/i.test(line)
-}
-
-function validateModeInput (input, mode) {
-  const lines = input.split(/\r?\n/)
-  const issues = []
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i].trim()
-    if (!line) {
-      continue
-    }
-    if (isGlobalDirective(line)) {
-      continue
-    }
-    if (!MODE_CONFIG[mode].accepts(line)) {
-      issues.push('Line ' + (i + 1) + ': invalid for "' + mode + '" mode -> ' + line)
-    }
+function loginUrl (spotify) {
+  if (spotify && typeof spotify.implicitGrantFlowURI === 'function') {
+    return spotify.implicitGrantFlowURI(window.location.href)
   }
-  return issues
-}
 
-function renderModeFields (mode) {
-  const cfg = MODE_CONFIG[mode]
-  const fields = cfg.fields.map(function (field) {
-    const req = field.required ? 'required' : ''
-    const reqMark = field.required ? '*' : ''
-    return '<label class="mode-field">' +
-      '<span>' + field.label + reqMark + '</span>' +
-      '<input type="text" class="mode-input" data-field="' + field.id + '" placeholder="' + field.placeholder + '" ' + req + '>' +
-      '</label>'
-  }).join('')
-  $('.mode-fields').html(fields)
-  $('.mode-hint').text(cfg.hint)
-  $('#generator-input').attr('placeholder', cfg.placeholder)
-}
-
-function setMode (mode) {
-  $('.mode-btn').removeClass('active')
-  $('.mode-btn[data-mode="' + mode + '"]').addClass('active')
-  renderModeFields(mode)
-  setLog('')
-}
-
-function appendLine () {
-  const mode = activeMode()
-  const cfg = MODE_CONFIG[mode]
-  const values = {}
-  let hasError = false
-
-  $('.mode-input').each(function () {
-    const input = $(this)
-    const key = input.data('field')
-    const value = input.val().trim()
-    values[key] = value
-    if (input.prop('required') && !value) {
-      hasError = true
-    }
+  const redirectUri = window.location.href.split('#')[0]
+  const params = new URLSearchParams({
+    client_id: spotify && spotify.clientId ? spotify.clientId : '',
+    response_type: 'token',
+    redirect_uri: redirectUri,
+    scope: 'playlist-modify-public playlist-modify-private'
   })
-
-  if (values.limit && !/^\d+$/.test(values.limit)) {
-    setLog('Limit must be an integer.')
-    return false
-  }
-
-  if (hasError) {
-    setLog('Fill all required mode fields.')
-    return false
-  }
-
-  const line = cfg.buildLine(values)
-  const textarea = $('#generator-input')
-  const current = textarea.val().trim()
-  const next = current ? (current + '\n' + line) : line
-  textarea.val(next)
-  $('.mode-input').val('')
-  setLog('')
-  return false
+  return 'https://accounts.spotify.com/authorize?' + params.toString()
 }
 
 function resetCreateButton () {
@@ -235,17 +50,10 @@ function resetCreateButton () {
 function generate () {
   const textarea = $('#generator-input')
   const button = $('.create-btn')
-  const mode = activeMode()
   const input = textarea.val().trim()
 
   if (!input) {
     setLog('Input is required.')
-    return false
-  }
-
-  const issues = validateModeInput(input, mode)
-  if (issues.length > 0) {
-    setLog(issues.slice(0, 3).join('\n'))
     return false
   }
 
@@ -279,29 +87,20 @@ function generate () {
 function clickCreate () {
   if (hasToken()) {
     return generate()
-  } else {
-    localStorage.setItem('textarea', $('#generator-input').val())
-    return true
   }
+  localStorage.setItem('textarea', $('#generator-input').val())
+  return true
 }
 
 $(function () {
   const button = $('.create-btn')
-  const modeButtons = $('.mode-btn')
-  const defaultMode = 'track'
 
-  modeButtons.on('click', function () {
-    setMode($(this).data('mode'))
-  })
-
-  $('.mode-add').on('click', appendLine)
   $('.clear-btn').on('click', function () {
     $('#generator-input').val('')
     setLog('')
   })
   button.on('click', clickCreate)
   button.tooltip()
-  setMode(defaultMode)
   $('#generator-input').focus()
 
   if (hasToken()) {
@@ -310,10 +109,10 @@ $(function () {
       localStorage.removeItem('textarea')
       generate()
     }
+    button.attr('href', '#')
   } else {
     const spotify = new SpotifyAuth()
-    const url = spotify.implicitGrantFlowURI(window.location.href)
-    button.attr('href', url)
+    button.attr('href', loginUrl(spotify))
   }
 })
 
@@ -1080,9 +879,21 @@ Collection.prototype.order = function () {
         const x = a[this.ordering]
         const y = b[this.ordering]
         if (typeof x === 'string') {
-          return (x < y) ? -1 : ((x > y) ? 1 : 0)
+          if (x < y) {
+            return -1
+          }
+          if (x > y) {
+            return 1
+          }
+          return 0
         } else {
-          return (x < y) ? 1 : ((x > y) ? -1 : 0)
+          if (x < y) {
+            return 1
+          }
+          if (x > y) {
+            return -1
+          }
+          return 0
         }
       })
     })
@@ -1373,7 +1184,7 @@ module.exports = http
 },{}],9:[function(require,module,exports){
 const http = require('./http')
 
-module.exports = function (key) {
+module.exports = function createLastfm (key) {
   const lastfm = {}
 
   /**
@@ -1866,7 +1677,7 @@ Playlist.prototype.searchPlaylists = function () {
       }
     }).catch(() => {
       // console.log('COULD NOT FIND ' + this.entry)
-      throw null
+      throw new Error('COULD NOT FIND: ' + this.entry)
     })
   }
 }
@@ -1932,7 +1743,14 @@ Queue.prototype.concat = function (queue) {
  * `false` otherwise.
  */
 Queue.prototype.contains = function (obj) {
-  return this.indexOf(obj) >= 0
+  if (this.queue.includes(obj)) {
+    return true
+  }
+  return _.findIndex(this.queue, function (entry) {
+    return entry && entry.similarTo &&
+      obj && obj.similarTo &&
+      entry.similarTo(obj)
+  }) !== -1
 }
 
 /**
@@ -1944,10 +1762,7 @@ Queue.prototype.contains = function (obj) {
 Queue.prototype.dedup = function () {
   const result = new Queue()
   return this.forEachPromise((entry) => {
-    if (!result.contains(entry)) {
-      result.add(entry)
-      return Promise.resolve(entry)
-    } else {
+    if (result.contains(entry)) {
       const idx = this.indexOf(entry)
       const other = result.get(idx)
       if (entry.equals(other)) {
@@ -1961,6 +1776,9 @@ Queue.prototype.dedup = function () {
           })
         })
       }
+    } else {
+      result.add(entry)
+      return Promise.resolve(entry)
     }
   }).then(() => {
     this.queue = result.toArray()
@@ -2095,7 +1913,7 @@ Queue.prototype.indexOf = function (obj) {
  * @return {Queue} - Itself.
  */
 Queue.prototype.interleave = function () {
-  this.queue = _.compact(_.flatten(_.zip.apply(null, this.toArray())))
+  this.queue = _.compact(_.zip.apply(null, this.toArray()).flat())
   return this
 }
 
@@ -2247,6 +2065,34 @@ function WebScraper (uri, count, parser) {
   this.parser = parser
 }
 
+function parseRedditCommentLines (block) {
+  // First assumption: links usually point to track references.
+  const links = block.find('a')
+  if (links.length > 0) {
+    let linkLines = ''
+    links.each(function () {
+      const txt = $(this).text()
+      if (!txt.match(/https?:/gi)) {
+        linkLines += util.stripNoise(txt) + '\n'
+      }
+    })
+    return linkLines
+  }
+
+  const body = block.text()
+  const sentences = body.split('.')
+  if (sentences.length > 1) {
+    return util.stripNoise(sentences[0]) + '\n'
+  }
+
+  const bodyLines = body.split('\n')
+  if (bodyLines.length > 1) {
+    return util.stripNoise(bodyLines[0]) + '\n'
+  }
+
+  return util.stripNoise(body) + '\n'
+}
+
 /**
  * Scrape a web page.
  *
@@ -2319,8 +2165,7 @@ WebScraper.prototype.dispatch = function () {
  * @param {integer} [count] - The number of pages to scrape.
  * @return {Promise | string} A newline-separated list of tracks.
  */
-WebScraper.prototype.lastfm = function (uri, count) {
-  count = count || 1
+WebScraper.prototype.lastfm = function (uri, count = 1) {
   function getPages (nextUri, result, count) {
     nextUri = URI(nextUri).absoluteTo(uri).toString()
     console.log(nextUri + '\n')
@@ -2366,7 +2211,7 @@ WebScraper.prototype.lastfm = function (uri, count) {
           }
         })
       }
-      console.log(util.stripWhitespace(lines, '\\t') + '\n')
+      console.log(util.stripWhitespace(lines, String.raw`\t`) + '\n')
       result += lines
       if (count === 1) {
         return result
@@ -2390,8 +2235,7 @@ WebScraper.prototype.lastfm = function (uri, count) {
  * @param {integer} [count] - The number of pages to scrape.
  * @return {Promise | string} A newline-separated list of albums.
  */
-WebScraper.prototype.pitchfork = function (uri, count) {
-  count = count || 0
+WebScraper.prototype.pitchfork = function (uri, count = 0) {
   function getPages (nextUri, result, count) {
     nextUri = URI(nextUri).absoluteTo(uri).toString()
     console.log(nextUri + '\n')
@@ -2403,7 +2247,7 @@ WebScraper.prototype.pitchfork = function (uri, count) {
         const album = util.normalize($(this).find('h2[class*="work-title"]').text())
         lines += '#album ' + artist + '\t-\t' + album + '\n'
       })
-      console.log(util.stripWhitespace(lines, '\\t') + '\n')
+      console.log(util.stripWhitespace(lines, String.raw`\t`) + '\n')
       result += lines
       if (count === 1) {
         return result
@@ -2427,8 +2271,7 @@ WebScraper.prototype.pitchfork = function (uri, count) {
  * @param {integer} [count] - The number of pages to scrape.
  * @return {Promise | string} A newline-separated list of albums.
  */
-WebScraper.prototype.rateyourmusic = function (uri, count) {
-  count = count || 0
+WebScraper.prototype.rateyourmusic = function (uri, count = 0) {
   function getPages (nextUri, result, count) {
     nextUri = URI(nextUri).absoluteTo(uri).toString()
     console.log(nextUri + '\n')
@@ -2440,7 +2283,7 @@ WebScraper.prototype.rateyourmusic = function (uri, count) {
         const album = util.normalize($(this).find('a.album').text())
         lines += '#album ' + artist + '\t-\t' + album + '\n'
       })
-      console.log(util.stripWhitespace(lines, '\\t') + '\n')
+      console.log(util.stripWhitespace(lines, String.raw`\t`) + '\n')
       result += lines
       if (count === 1) {
         return result
@@ -2468,8 +2311,7 @@ WebScraper.prototype.rateyourmusic = function (uri, count) {
  * @param {integer} [count] - The number of pages to scrape.
  * @return {Promise | string} A newline-separated list of tracks.
  */
-WebScraper.prototype.reddit = function (uri, count) {
-  count = count || 1
+WebScraper.prototype.reddit = function (uri, count = 1) {
   function getPages (nextUri, result, count) {
     nextUri = URI(nextUri).absoluteTo(uri).toString()
     console.log(nextUri + '\n')
@@ -2479,36 +2321,7 @@ WebScraper.prototype.reddit = function (uri, count) {
       if (uri.match(/\/comments\//gi)) {
         // comments thread
         html.find('div.entry div.md').each(function () {
-          // first assumption: if there are links,
-          // they are probably links to songs
-          const links = $(this).find('a')
-          if (links.length > 0) {
-            links.each(function () {
-              const txt = $(this).text()
-              if (!txt.match(/https?:/gi)) {
-                lines += util.stripNoise(txt) + '\n'
-              }
-            })
-            return
-          }
-          // second assumption: if there are multiple sentences,
-          // the song is the first one
-          const body = $(this).text()
-          const sentences = body.split('.')
-          if (sentences.length > 1) {
-            lines += util.stripNoise(sentences[0]) + '\n'
-            return
-          }
-          // third assumption: if there are multiple lines to a comment,
-          // then the song will be on the first line with a user's
-          // comments on other lines after it
-          const bodyLines = body.split('\n')
-          if (bodyLines.length > 1) {
-            lines += util.stripNoise(bodyLines[0]) + '\n'
-            return
-          }
-          // fall-back case
-          lines += util.stripNoise(body) + '\n'
+          lines += parseRedditCommentLines($(this))
         })
       } else {
         // post listing
@@ -2517,7 +2330,7 @@ WebScraper.prototype.reddit = function (uri, count) {
           lines += track + '\n'
         })
       }
-      console.log(util.stripWhitespace(lines, '\\t') + '\n')
+      console.log(util.stripWhitespace(lines, String.raw`\t`) + '\n')
       result += lines
       if (count === 1) {
         return result
@@ -2709,7 +2522,13 @@ function sort (arr, fn) {
   pairs = pairs.sort(function (a, b) {
     const x = fn(a.val, b.val)
     if (x) { return x }
-    return (a.idx < b.idx) ? -1 : ((a.idx > b.idx) ? 1 : 0)
+    if (a.idx < b.idx) {
+      return -1
+    }
+    if (a.idx > b.idx) {
+      return 1
+    }
+    return 0
   })
   for (i = 0; i < arr.length; i++) {
     arr[i] = pairs[i].val
@@ -2727,7 +2546,13 @@ function sort (arr, fn) {
  */
 sort.ascending = function (fn) {
   return sort.comparator(function (x, y) {
-    return (x < y) ? -1 : ((x > y) ? 1 : 0)
+    if (x < y) {
+      return -1
+    }
+    if (x > y) {
+      return 1
+    }
+    return 0
   }, fn)
 }
 
@@ -2741,7 +2566,13 @@ sort.ascending = function (fn) {
  */
 sort.descending = function (fn) {
   return sort.comparator(function (x, y) {
-    return (x < y) ? 1 : ((x > y) ? -1 : 0)
+    if (x < y) {
+      return 1
+    }
+    if (x > y) {
+      return -1
+    }
+    return 0
   }, fn)
 }
 
@@ -2907,20 +2738,19 @@ sort.track = function (track) {
 module.exports = sort
 
 },{"lodash":42,"string-similarity":61}],16:[function(require,module,exports){
-(function (process){(function (){
 const URI = require('urijs')
 const http = require('./http')
 const SpotifyAuth = require('./auth')
-const ENV = (typeof process !== 'undefined' && process) ? process.env : null
+const ENV = globalThis.process ? globalThis.process.env : null
 const DEFAULT_MARKET = ENV ? (ENV.SPOTGEN_SPOTIFY_MARKET || 'US') : 'US'
 
 function getPath (obj, path) {
   let current = obj
-  for (let i = 0; i < path.length; i++) {
-    if (current === null || typeof current === 'undefined') {
+  for (const key of path) {
+    if (current === null || current === undefined) {
       return undefined
     }
-    current = current[path[i]]
+    current = current[key]
   }
   return current
 }
@@ -3127,9 +2957,12 @@ SpotifyWebApi.prototype.request = function (uri, options) {
     options.headers.Authorization = 'Bearer ' + token
     return this.http(uri, options)
   }).catch((error_) => {
-    const status = typeof error_ === 'number'
-      ? error_
-      : (error_ ? error_.status : null)
+    let status = null
+    if (typeof error_ === 'number') {
+      status = error_
+    } else if (error_) {
+      status = error_.status
+    }
     if (status === 401 || status === 403) {
       return this.auth.refreshToken().then((token) => {
         options.headers.Authorization = 'Bearer ' + token
@@ -3242,8 +3075,7 @@ SpotifyWebApi.prototype.searchTracks = function (track, artist, album) {
 
 module.exports = SpotifyWebApi
 
-}).call(this)}).call(this,require('_process'))
-},{"./auth":4,"./http":8,"_process":44,"urijs":66}],17:[function(require,module,exports){
+},{"./auth":4,"./http":8,"urijs":66}],17:[function(require,module,exports){
 const Artist = require('./artist')
 const Queue = require('./queue')
 const sort = require('./sort')
@@ -3323,8 +3155,7 @@ Top.prototype.dispatch = function () {
  * Fetch top tracks.
  * @return {Promise | JSON} A JSON response.
  */
-Top.prototype.getArtistTopTracks = function (country) {
-  country = country || 'US'
+Top.prototype.getArtistTopTracks = function (country = 'US') {
   return this.spotify.getArtistTopTracks(this.id, country).then((response) => {
     sort(response.body.tracks, sort.popularity)
     this.tracks = response.body.tracks
@@ -3356,6 +3187,18 @@ const defaults = require('./defaults')
 const lastfm = require('./lastfm')(defaults.api)
 const sort = require('./sort')
 const util = require('./util')
+
+function numberToString (num) {
+  return (Number.isInteger(num) && (num >= 0)) ? num : ''
+}
+
+function trimTrackTitle (str) {
+  str = util.toAscii(str)
+  str = util.stripPunctuation(str)
+  str = util.stripWhitespace(str)
+  str = str.toLowerCase()
+  return str
+}
 
 /**
  * Create track entry.
@@ -3488,9 +3331,6 @@ Track.prototype.clone = function (response) {
  * @return {string} Track data in CSV format.
  */
 Track.prototype.csv = function () {
-  function numberToString (num) {
-    return (Number.isInteger(num) && (num >= 0)) ? num : ''
-  }
   return csvStringify([[
     this.uri,
     this.name,
@@ -3539,14 +3379,14 @@ Track.prototype.getAudioFeaturesForTrack = function (id) {
     return this.spotify.getAudioFeaturesForTrack(id).then((response) => {
       this.clone(response.body)
       // define aliases
-      this.unacousticness = 1.0 - (this.acousticness || 0.0)
-      this.undanceability = 1.0 - (this.danceability || 0.0)
-      this.unenergy = 1.0 - (this.energy || 0.0)
-      this.uninstrumentalness = 1.0 - (this.instrumentalness || 0.0)
-      this.unliveness = 1.0 - (this.liveness || 0.0)
-      this.unloudness = 1.0 - (this.loudness || 0.0)
-      this.unspeechiness = 1.0 - (this.speechiness || 0.0)
-      this.unvalence = 1.0 - (this.valence || 0.0)
+      this.unacousticness = 1 - (this.acousticness || 0)
+      this.undanceability = 1 - (this.danceability || 0)
+      this.unenergy = 1 - (this.energy || 0)
+      this.uninstrumentalness = 1 - (this.instrumentalness || 0)
+      this.unliveness = 1 - (this.liveness || 0)
+      this.unloudness = 1 - (this.loudness || 0)
+      this.unspeechiness = 1 - (this.speechiness || 0)
+      this.unvalence = 1 - (this.valence || 0)
       return this
     })
   }
@@ -3659,7 +3499,7 @@ Track.prototype.getTrack = function (id) {
       return this
     }).catch(() => {
       console.log('COULD NOT FIND: ' + this.entry)
-      throw null
+      throw new Error('COULD NOT FIND: ' + this.entry)
     })
   }
 }
@@ -3740,7 +3580,7 @@ Track.prototype.searchTracks = function (track, artist, album) {
         // try again without artist
         return searchTrackArtist(title, artist)
       } else {
-        throw null
+        throw new Error('COULD NOT FIND: ' + this.entry)
       }
     })
   }
@@ -3752,7 +3592,7 @@ Track.prototype.searchTracks = function (track, artist, album) {
       if (str && str !== query) {
         return search(str)
       } else {
-        throw null
+        throw new Error('COULD NOT FIND: ' + this.entry)
       }
     }).catch(() => {
       // try again as ID
@@ -3760,7 +3600,7 @@ Track.prototype.searchTracks = function (track, artist, album) {
         return this.getTrack(query)
       } else {
         console.log('COULD NOT FIND: ' + this.entry)
-        throw null
+        throw new Error('COULD NOT FIND: ' + this.entry)
       }
     })
   }
@@ -3792,18 +3632,11 @@ Track.prototype.searchTracks = function (track, artist, album) {
  * `false` otherwise.
  */
 Track.prototype.similarTo = function (track) {
-  function trim (str) {
-    str = util.toAscii(str)
-    str = util.stripPunctuation(str)
-    str = util.stripWhitespace(str)
-    str = str.toLowerCase()
-    return str
-  }
   return this.equals(track) ||
     (this.title && track.title &&
      (this.title === track.title ||
-      (trim(this.title) !== '' &&
-       trim(this.title) === trim(track.title))))
+      (trimTrackTitle(this.title) !== '' &&
+       trimTrackTitle(this.title) === trimTrackTitle(track.title))))
 }
 
 /**
@@ -4784,7 +4617,7 @@ function popperGenerator(generatorOptions) {
         runModifierEffects();
         return instance.update();
       },
-      // Sync update ÔÇô it will always be executed, even if not necessary. This
+      // Sync update – it will always be executed, even if not necessary. This
       // is useful for low frequency updates where sync behavior simplifies the
       // logic.
       // For high frequency updates (e.g. `resize` and `scroll` events), always
@@ -4846,7 +4679,7 @@ function popperGenerator(generatorOptions) {
           }
         }
       },
-      // Async and optimistically optimized update ÔÇô it will not be executed if
+      // Async and optimistically optimized update – it will not be executed if
       // not necessary (debounced to run at most once-per-tick)
       update: debounce(function () {
         return new Promise(function (resolve) {
@@ -5431,7 +5264,7 @@ function flip(_ref) {
   }
 
   if (makeFallbackChecks) {
-    // `2` may be desired in some cases ÔÇô research later
+    // `2` may be desired in some cases – research later
     var numberOfChecks = flipVariations ? 3 : 1;
 
     var _loop = function _loop(_i) {
@@ -5825,7 +5658,7 @@ exports.preventOverflow = preventOverflow$1;
 
 	// `decode` is designed to be fully compatible with `atob` as described in the
 	// HTML Standard. http://whatwg.org/html/webappapis.html#dom-windowbase64-atob
-	// The optimized base64-decoding algorithm used is based on @atkÔÇÖs excellent
+	// The optimized base64-decoding algorithm used is based on @atk’s excellent
 	// implementation. https://gist.github.com/atk/1020396
 	var decode = function(input) {
 		input = String(input)
@@ -5852,9 +5685,9 @@ exports.preventOverflow = preventOverflow$1;
 		while (++position < length) {
 			buffer = TABLE.indexOf(input.charAt(position));
 			bitStorage = bitCounter % 4 ? bitStorage * 64 + buffer : buffer;
-			// Unless this is the first of a group of 4 charactersÔÇª
+			// Unless this is the first of a group of 4 characters…
 			if (bitCounter++ % 4) {
-				// ÔÇªconvert the first 8 bits to a single ASCII character.
+				// …convert the first 8 bits to a single ASCII character.
 				output += String.fromCharCode(
 					0xFF & bitStorage >> (-2 * bitCounter & 6)
 				);
@@ -34697,7 +34530,7 @@ module.exports = maxBy;
      *
      * **Security:** See
      * [threat model](https://github.com/lodash/lodash/blob/main/threat-model.md)
-     * ÔÇö `_.template` is insecure and will be removed in v5.
+     * — `_.template` is insecure and will be removed in v5.
      *
      * @static
      * @memberOf _
@@ -47225,7 +47058,7 @@ module.exports = maxBy;
      * @returns {string} Returns the deburred string.
      * @example
      *
-     * _.deburr('d├®j├á vu');
+     * _.deburr('déjà vu');
      * // => 'deja vu'
      */
     function deburr(string) {
@@ -53694,7 +53527,7 @@ exports.clearImmediate = typeof clearImmediate === "function" ? clearImmediate :
     var length = segments.length;
     var total = 8;
 
-    // trim colons (:: or ::a:b:cÔÇª or ÔÇªa:b:c::)
+    // trim colons (:: or ::a:b:c… or …a:b:c::)
     if (segments[0] === '' && segments[1] === '' && segments[2] === '') {
       // must have been ::
       // remove first two items
@@ -54301,14 +54134,14 @@ exports.clearImmediate = typeof clearImmediate === "function" ? clearImmediate :
   // best solution in a regex-golf we did a couple of ages ago at
   // * http://mathiasbynens.be/demo/url-regex
   // * http://rodneyrehm.de/t/url-regex.html
-  URI.find_uri_expression = /\b((?:[a-z][\w-]+:(?:\/{1,3}|[a-z0-9%])|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}\/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'".,<>?┬½┬╗ÔÇ£ÔÇØÔÇÿÔÇÖ]))/ig;
+  URI.find_uri_expression = /\b((?:[a-z][\w-]+:(?:\/{1,3}|[a-z0-9%])|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}\/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'".,<>?«»“”‘’]))/ig;
   URI.findUri = {
     // valid "scheme://" or "www."
     start: /\b(?:([a-z][a-z0-9.+-]*:\/\/)|www\.)/gi,
     // everything up to the next whitespace
     end: /[\s\r\n]|$/,
     // trim trailing punctuation captured by end RegExp
-    trim: /[`!()\[\]{};:'".,<>?┬½┬╗ÔÇ£ÔÇØÔÇ×ÔÇÿÔÇÖ]+$/,
+    trim: /[`!()\[\]{};:'".,<>?«»“”„‘’]+$/,
     // balanced parens inclusion (), [], {}, <>
     parens: /(\([^\)]*\)|\[[^\]]*\]|\{[^}]*\}|<[^>]*>)/g,
   };
@@ -54832,7 +54665,7 @@ exports.clearImmediate = typeof clearImmediate === "function" ? clearImmediate :
   };
   URI.buildQuery = function(data, duplicateQueryParameters, escapeQuerySpace) {
     // according to http://tools.ietf.org/html/rfc3986 or http://labs.apache.org/webarch/uri/rfc/rfc3986.html
-    // being ┬╗-._~!$&'()*+,;=:@/?┬½ %HEX and alnum are allowed
+    // being »-._~!$&'()*+,;=:@/?« %HEX and alnum are allowed
     // the RFC explicitly states ?/foo being a valid use case, no mention of parameter syntax!
     // URI.js treats the query string as being application/x-www-form-urlencoded
     // see http://www.w3.org/TR/REC-html40/interact/forms.html#form-content-type
