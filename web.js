@@ -4,37 +4,14 @@ const $ = require('jquery')
 jQuery = $
 require('bootstrap')
 
-const SpotifyAuth = require('../lib/auth')
-const Generator = require('../lib/generator')
-
 function setLog (message) {
   $('.log').text(message || '')
 }
 
-function token () {
-  const hash = window.location.hash || ''
-  const query = hash.startsWith('#') ? hash.slice(1) : hash
-  const urlParams = new URLSearchParams(query)
-  return urlParams.get('access_token') || ''
-}
-
-function hasToken () {
-  return token() !== ''
-}
-
-function loginUrl (spotify) {
-  if (spotify && typeof spotify.implicitGrantFlowURI === 'function') {
-    return spotify.implicitGrantFlowURI(window.location.href)
-  }
-
-  const redirectUri = window.location.href.split('#')[0]
-  const params = new URLSearchParams({
-    client_id: spotify && spotify.clientId ? spotify.clientId : '',
-    response_type: 'token',
-    redirect_uri: redirectUri,
-    scope: 'playlist-modify-public playlist-modify-private'
-  })
-  return 'https://accounts.spotify.com/authorize?' + params.toString()
+function apiBaseUrl () {
+  const protocol = window.location.protocol || 'http:'
+  const hostname = window.location.hostname || 'localhost'
+  return protocol + '//' + hostname + ':3000'
 }
 
 function resetCreateButton () {
@@ -46,7 +23,7 @@ function resetCreateButton () {
   button.tooltip('enable')
 }
 
-function generate () {
+async function generate () {
   const textarea = $('#generator-input')
   const button = $('.create-btn')
   const input = textarea.val().trim()
@@ -56,14 +33,25 @@ function generate () {
     return false
   }
 
-  const generator = new Generator(input, null, null, token())
   button.text('Creating Playlist ...')
   button.addClass('active')
   button.addClass('disabled')
   button.mouseleave()
   button.tooltip('disable')
 
-  generator.generate().then(function (result) {
+  try {
+    const response = await fetch(apiBaseUrl() + '/api/generate', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ input })
+    })
+    const payload = await response.json()
+    if (!response.ok) {
+      throw new Error(payload && payload.error ? payload.error : 'Generation failed.')
+    }
+    const result = payload && payload.output ? payload.output : ''
     button.removeClass('disabled')
     textarea.val(result)
     textarea.focus()
@@ -75,20 +63,16 @@ function generate () {
       button.text('Created Playlist')
       setLog('Copy and paste the above into a new Spotify playlist.')
     }
-  }).catch(function (error) {
+  } catch (error) {
     resetCreateButton()
     const message = (error && error.message) ? error.message : 'Generation failed.'
     setLog(message)
-  })
+  }
   return false
 }
 
 function clickCreate () {
-  if (hasToken()) {
-    return generate()
-  }
-  localStorage.setItem('textarea', $('#generator-input').val())
-  return true
+  return generate()
 }
 
 $(function () {
@@ -102,15 +86,5 @@ $(function () {
   button.tooltip()
   $('#generator-input').focus()
 
-  if (hasToken()) {
-    if (localStorage.getItem('textarea')) {
-      $('#generator-input').val(localStorage.getItem('textarea'))
-      localStorage.removeItem('textarea')
-      generate()
-    }
-    button.attr('href', '#')
-  } else {
-    const spotify = new SpotifyAuth()
-    button.attr('href', loginUrl(spotify))
-  }
+  button.attr('href', '#')
 })
